@@ -39,7 +39,7 @@ class Room ( db.Model ) :
     id = db.Column ( db.Integer, primary_key = True )
     room_number = db.Column ( db.String ( 3 ), unique = True, nullable = False )
     capacity = db.Column ( db.Integer, nullable = False, default = 1 )
-    default_rent = db.Column ( db.Float, nullable = False )
+    default_rent = db.Column ( db.Numeric(10, 2), nullable = False )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
     status = db.Column ( db.Enum ( "available", "occupied", name = "room_status" ), nullable = False, default = "available" )
 
@@ -49,7 +49,7 @@ class Room ( db.Model ) :
 
 class Tenant ( db.Model ) :
 
-    __tablename__ = tenants
+    __tablename__ = "tenants"
 
     id = db.Column ( db.Integer, primary_key = True )
     name = db.Column ( db.String ( 255 ), nullable = False )
@@ -70,10 +70,10 @@ class Occupancy ( db.Model ) :
     id = db.Column ( db.Integer, primary_key = True )
     tenant_id = db.Column ( db.Integer, db.ForeignKey ( "tenants.id" ), nullable = False )
     room_id = db.Column ( db.Integer, db.ForeignKey ( "rooms.id" ), nullable = False )
-    rent_amount = db.Column ( db.Float, nullable = False )
+    rent_amount = db.Column ( db.Numeric(10, 2), nullable = False )
     start_date = db.Column ( db.Date, nullable = False )
     end_date = db.Column ( db.Date, nullable = True )
-    check_in_notes = dbColumn ( db.Text, nullable = True )
+    check_in_notes = db.Column ( db.Text, nullable = True )
     check_out_notes = db.Column ( db.Text, nullable = True )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
@@ -91,12 +91,12 @@ class MonthlyCharge ( db.Model ) :
 
     id = db.Column ( db.Integer, primary_key = True )
     occupancy_id = db.Column ( db.Integer, db.ForeignKey ( "occupancies.id" ), nullable = False )
-    rent_amount = db.Column ( db.Float, nullable = False )
-    water_bill = db.Column ( db.Float, nullable = False )
+    rent_amount = db.Column ( db.Numeric(10, 2), nullable = False )
+    water_bill = db.Column ( db.Numeric(10, 2), nullable = False )
     month = db.Column ( db.String ( 20), nullable = False, default = datetime.utcnow().strftime ( "%B" ) )
     year = db.Column ( db.Integer, nullable = False, default = datetime.utcnow().year )
     charge_date = db.Column ( db.Date, nullable = False )
-    other_charges = db.Column ( db.Float, nullable = True, default = 0.0 )
+    other_charges = db.Column ( db.Numeric(10, 2), nullable = True, default = 0.0 )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
     occupancy = db.relationship ( "Occupancy", backref = "monthly_charges" )
