@@ -13,7 +13,7 @@ class PaymentResource ( Resource ) :
 
     def record_payment () :
 
-        data = request.getjson ()
-        
+        data = request.get_json ()
+
         pass
 

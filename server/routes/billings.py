@@ -8,7 +8,7 @@ class BillingResource ( Resource ) :
 
     def generate_monthly_billings () :
 
-        data = request.getjson()
+        data = request.get_json()
 
         month  = data [ "month" ]
         year = data [ "year" ]
