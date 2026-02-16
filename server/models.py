@@ -15,9 +15,10 @@ class User ( db.Model ) :
     username = db.Column ( db.String ( 255 ), unique = True, nullable = False )
     email = db.Column ( db.String ( 255 ), unique = True, nullable = False )
     password_hash = db.Column ( db.String ( 255 ), nullable = False )
-    # Roles so far : Admin, Manager
+    # Roles created so far : Admin, Manager
     role = db.Column ( db.Enum ( "admin", "manager", name = "user_roles" ), nullable = False, default = "manager" )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
+    updated_at = db.Column ( db.DateTime, default = datetime.utcnow, onupdate = datetime.utcnow )
 
 
 
@@ -38,11 +39,12 @@ class Room ( db.Model ) :
     id = db.Column ( db.Integer, primary_key = True )
     room_number = db.Column ( db.String ( 3 ), unique = True, nullable = False )
     capacity = db.Column ( db.Integer, nullable = False, default = 1 )
+    default_rent = db.Column ( db.Float, nullable = False )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
     status = db.Column ( db.Enum ( "available", "occupied", name = "room_status" ), nullable = False, default = "available" )
 
     def __repr__ ( self ) :
-        return f"<Room { self.name }>"
+        return f"<Room { self.room_number }>"
     
 
 class Tenant ( db.Model ) :
@@ -53,4 +55,31 @@ class Tenant ( db.Model ) :
     name = db.Column ( db.String ( 255 ), nullable = False )
     email = db.Column ( db.String ( 255 ), unique = True, nullable = False )
     phone = db.Column ( db.String ( 20 ), nullable = True )
+    national_id = db.Column ( db.String ( 8), unique = True, nullable = False )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
+    updated_at = db.Column ( db.DateTime, default = datetime.utcnow, onupdate = datetime.utcnow )
+
+    def __repr__ ( self ) :
+        return f"<Tenant { self.id } - { self.name }>"
+    
+
+class Occupancy ( db.Model ) :
+
+    __tablename__ = "occupancies"
+
+    id = db.Column ( db.Integer, primary_key = True )
+    tenant_id = db.Column ( db.Integer, db.ForeignKey ( "tenants.id" ), nullable = False )
+    room_id = db.Column ( db.Integer, db.ForeignKey ( "rooms.id" ), nullable = False )
+    rent_amount = db.Column ( db.Float, nullable = False )
+    start_date = db.Column ( db.Date, nullable = False )
+    end_date = db.Column ( db.Date, nullable = True )
+    check_in_notes = dbColumn ( db.Text, nullable = True )
+    check_out_notes = db.Column ( db.Text, nullable = True )
+    created_at = db.Column ( db.DateTime, default = datetime.utcnow )
+
+
+    tenant = db.relationship ( "Tenant", backref = "occupancies" )
+    room = db.relationship ( "Room", backref = "occupancies" )
+
+    def __repr__ ( self ) :
+        return f"<Occupancy { self.id } - Tenant { self.tenant_id } in Room { self.room_id } started on { self.start_date }>"
