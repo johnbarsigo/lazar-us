@@ -77,7 +77,7 @@ class Occupancy ( db.Model ) :
     check_out_notes = db.Column ( db.Text, nullable = True )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
-
+    # Relationships
     tenant = db.relationship ( "Tenant", backref = "occupancies" )
     room = db.relationship ( "Room", backref = "occupancies" )
 
@@ -99,6 +99,7 @@ class MonthlyCharge ( db.Model ) :
     other_charges = db.Column ( db.Numeric(10, 2), nullable = True, default = 0.0 )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
+    # Relationships
     occupancy = db.relationship ( "Occupancy", backref = "monthly_charges" )
 
     def __repr__ ( self ) :
@@ -118,6 +119,7 @@ class Payment ( db.Model ) :
     payment_date = db.Column ( db.Date, nullable=False )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
+    # Relationships
     monthly_charge = db.relationship ( "MonthlyCharge", backref = "payments" )
 
     def __repr__ ( self ) :
