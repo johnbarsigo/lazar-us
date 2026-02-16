@@ -70,7 +70,7 @@ class Occupancy ( db.Model ) :
     id = db.Column ( db.Integer, primary_key = True )
     tenant_id = db.Column ( db.Integer, db.ForeignKey ( "tenants.id" ), nullable = False )
     room_id = db.Column ( db.Integer, db.ForeignKey ( "rooms.id" ), nullable = False )
-    rent_amount = db.Column ( db.Numeric(10, 2), nullable = False )
+    agreed_rent = db.Column ( db.Numeric(10, 2), nullable = False )
     start_date = db.Column ( db.Date, nullable = False )
     end_date = db.Column ( db.Date, nullable = True )
     check_in_notes = db.Column ( db.Text, nullable = True )
