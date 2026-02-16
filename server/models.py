@@ -83,3 +83,25 @@ class Occupancy ( db.Model ) :
 
     def __repr__ ( self ) :
         return f"<Occupancy { self.id } - Tenant { self.tenant_id } in Room { self.room_id } started on { self.start_date }>"
+
+
+class MonthlyCharge ( db.Model ) :
+
+    __tablename__ = "monthly_charges"
+
+    id = db.Column ( db.Integer, primary_key = True )
+    occupancy_id = db.Column ( db.Integer, db.ForeignKey ( "occupancies.id" ), nullable = False )
+    rent_amount = db.Column ( db.Float, nullable = False )
+    water_bill = db.Column ( db.Float, nullable = False )
+    month = db.Column ( db.String ( 20), nullable = False, default = datetime.utcnow().strftime ( "%B" ) )
+    year = db.Column ( db.Integer, nullable = False, default = datetime.utcnow().year )
+    charge_date = db.Column ( db.Date, nullable = False )
+    other_charges = db.Column ( db.Float, nullable = True, default = 0.0 )
+    created_at = db.Column ( db.DateTime, default = datetime.utcnow )
+
+    occupancy = db.relationship ( "Occupancy", backref = "monthly_charges" )
+
+    def __repr__ ( self ) :
+        return f"<MonthlyCharge { self.id } - Occupancy { self.occupancy_id } charged rent { self.rent_amount }, water bill { self.water_bill }, other charges { self.other_charges } on { self.charge_date }>"
+    
+    
