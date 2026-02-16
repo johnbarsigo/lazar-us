@@ -124,7 +124,7 @@ class Payment ( db.Model ) :
     mpesa_receipt = db.Column ( db.String (100), nullable=True )
 
     payment_date = db.Column ( db.Date, nullable=False )
-    created_at = db.Column ( db.DateTime, default = datetime.utcnow )
+    created_at = db.Column ( db.DateTime, default = db.func.current_timestamp() )
 
     # Relationships
     monthly_charge = db.relationship ( "MonthlyCharge", backref = "payments" )
