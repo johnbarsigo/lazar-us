@@ -1,0 +1,35 @@
+
+from flask import request, jsonify
+from models import db, Tenant, Occupancy, MonthlyCharge, Payment
+from sqlalchemy import func
+
+
+class ReportsResource ( Resource ) :
+
+    def generate_arrears_report () :
+
+        results = db.session.query (
+            Tenant.id,
+            Tenant.name,
+            func.sum (MonthlyCharge.rent_amount + MonthlyCharge.water_bill ).label ( "total_billed" ),
+            func.coalesce ( func.sum ( Payment.amount ), 0 ).label ( "total_paid" )
+        ).join ( Occupancy, Occupancy.tenant_id == Tenant.id ) \
+        .join ( MonthlyCharge, MonthlyCharge.occupancy_id == Occupancy.id ) \
+        .outerjoin ( Payment, Payment.monthly_charge_id == MonthlyCharge.id ) \
+        .group_by ( Tenant.id ).all()
+
+        report = []
+
+        for r in results :
+            balance = float ( r.total_billed) - float ( r.total_paid )
+
+            if balance > 0 :
+                report.append ( {
+                    "tenant_id" : r.id,
+                    "name" : r.name,
+                    "total billed" : float ( r.total_billed ),
+                    "total_paid" : float ( r.total_paid ),
+                    "balance" : balance
+                } )
+        
+        return report
