@@ -104,4 +104,21 @@ class MonthlyCharge ( db.Model ) :
     def __repr__ ( self ) :
         return f"<MonthlyCharge { self.id } - Occupancy { self.occupancy_id } charged rent { self.rent_amount }, water bill { self.water_bill }, other charges { self.other_charges } on { self.charge_date }>"
     
-    
+
+
+class Payment ( db.Model ) :
+
+    __tablename__ = "payments"
+
+    id = db.Column ( db.Integer , primary_key = True )
+    monthly_charge_id = db.Column ( db.Integer, db.ForeignKey( "monthlycharges.id" ) )
+    amount = db.Column ( db.Numeric( 10, 2 ), nullable = False )
+    method = db.Column ( db.Enum( "mpesa", "cash", "bank", name="payment_methods" ) )
+    mpesa_receipt = db.Column ( db.String (100), unique=True )
+    payment_date = db.Column ( db.Date, nullable=False )
+    created_at = db.Column ( db.DateTime, default = datetime.utcnow )
+
+    monthly_charge = db.relationship ( "MonthlyCharge", backref = "payments" )
+
+    def __repr__ ( self ) :
+        return f"Payment {self.id} for monthly charge ID :{self.monthly_charge_id}, through {self.method} on {self.payment_date}"
