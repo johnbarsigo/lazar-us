@@ -1,5 +1,6 @@
 
 from flask import request, jsonify
+from flask_restful import Resource
 from models import db, Tenant, Occupancy, MonthlyCharge, Payment
 from sqlalchemy import func
 
