@@ -70,7 +70,7 @@ class Occupancy ( db.Model ) :
     id = db.Column ( db.Integer, primary_key = True )
     tenant_id = db.Column ( db.Integer, db.ForeignKey ( "tenants.id" ), nullable = False )
     room_id = db.Column ( db.Integer, db.ForeignKey ( "rooms.id" ), nullable = False )
-    rent_amount = db.Column ( db.Numeric(10, 2), nullable = False )
+    agreed_rent = db.Column ( db.Numeric(10, 2), nullable = False )
     start_date = db.Column ( db.Date, nullable = False )
     end_date = db.Column ( db.Date, nullable = True )
     check_in_notes = db.Column ( db.Text, nullable = True )
@@ -99,6 +99,9 @@ class MonthlyCharge ( db.Model ) :
     other_charges = db.Column ( db.Numeric(10, 2), nullable = True, default = 0.0 )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
+    # Constraint to counter duplicate billing for the same month and year
+    __table_args__ = ( db.UniqueConstraint( "occupancy_id", "month", "year", name= "unique_monthly_charge" ) )
+
     # Relationships
     occupancy = db.relationship ( "Occupancy", backref = "monthly_charges" )
 
@@ -112,12 +115,16 @@ class Payment ( db.Model ) :
     __tablename__ = "payments"
 
     id = db.Column ( db.Integer , primary_key = True )
-    monthly_charge_id = db.Column ( db.Integer, db.ForeignKey( "monthlycharges.id" ) )
+
+    tenant_id = db.Column ( db.Integer, db.ForeignKey ( "tenants.id" ), nullable = False )
+    monthly_charge_id = db.Column ( db.Integer, db.ForeignKey( "monthly_charges.id" ), nullable = False )
+
     amount = db.Column ( db.Numeric( 10, 2 ), nullable = False )
     method = db.Column ( db.Enum( "mpesa", "cash", "bank", name="payment_methods" ) )
-    mpesa_receipt = db.Column ( db.String (100), unique=True )
+    mpesa_receipt = db.Column ( db.String (100), nullable=True )
+
     payment_date = db.Column ( db.Date, nullable=False )
-    created_at = db.Column ( db.DateTime, default = datetime.utcnow )
+    created_at = db.Column ( db.DateTime, default = db.func.current_timestamp() )
 
     # Relationships
     monthly_charge = db.relationship ( "MonthlyCharge", backref = "payments" )
