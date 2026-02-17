@@ -5,14 +5,25 @@ from models import db, Payment, MonthlyCharge
 from datetime import datetime
 
 
-class PaymentResource ( Resource ) :
+class PaymentsList ( Resource ) :
 
-    def get_payments ( self ) :
+    def get ( self ) :
 
-        pass
+        payments = Payment.query.all()
+
+        return [ {
+            "id" : p.id,
+            "tenant_id" : p.tenant_id,
+            "monthly_charge_id" : p.monthly_charge_id,
+            "amount" : p.amount,
+            "method" : p.method,
+            "payment_date" : p.payment_date
+        } for p in payments ], 200
 
 
-    def record_payment () :
+class RecordPayment ( Resource ) :
+
+    def post ( self ) :
 
         data = request.get_json ()
 
@@ -32,10 +43,8 @@ class PaymentResource ( Resource ) :
         db.session.add ( payment )
         db.session.commit ()
 
-        return { "message" : "Payment recorded." }
-
-        pass
+        return { "message" : "Payment recorded." }, 201
 
 
-api.add_resource ( PaymentResource, "/api/payments/record" )
-
+api.add_resource ( PaymentsList, "/api/payments" )
+api.add_resource ( RecordPayment, "/api/payments/record" )
