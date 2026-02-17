@@ -5,9 +5,9 @@ from models import db, Tenant, Occupancy, MonthlyCharge, Payment
 from sqlalchemy import func
 
 
-class ReportsResource ( Resource ) :
+class GenerateArrearsReport ( Resource ) :
 
-    def generate_arrears_report () :
+    def get ( self ) :
 
         results = db.session.query (
             Tenant.id,
