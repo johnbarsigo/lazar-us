@@ -5,9 +5,9 @@ from models import db, MonthlyCharge, Occupancy
 from datetime import date
 
 
-class BillingResource ( Resource ) :
+class GenerateMonthlyBillings ( Resource ) :
 
-    def generate_monthly_billings () :
+    def post ( self ) :
 
         data = request.get_json()
 
@@ -42,12 +42,25 @@ class BillingResource ( Resource ) :
         
         db.session.commit ()
 
-        return { "message" : f" {created} monthly charges created. " }
+        return { "message" : f" {created} monthly charges created. " }, 201
 
 
-        pass
+
+class BillingsList ( Resource ) :
+
+    def get ( self ) :
+
+        billings = MonthlyCharge.query.all()
+
+        return [ {
+            "id" : b.id,
+            "occupancy_id" : b.occupancy_id,
+            "month" : b.month,
+            "year" : b.year,
+            "rent_amount" : b.rent_amount,
+            "water_bill" : b.water_bill
+        } for b in billings ], 200
 
 
-    def get_all_billings () :
-
-        pass
+api.add_resource ( GenerateMonthlyBillings, "/api/billings/generate" )
+api.add_resource ( BillingsList, "/api/billings" )
