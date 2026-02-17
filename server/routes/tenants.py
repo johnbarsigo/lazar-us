@@ -52,12 +52,16 @@ class TenantDetails ( Resource ) :
         if not tenant :
             return { "error" : "Tenant not found." }, 404
         
+        # To retrieve the tenant's occupancy details as well.
+        occupancies = tenant.occupancies
+        
         return {
             "id" : tenant.id,
             "name" : tenant.name,
             "email" : tenant.email,
             "phone number" : tenant.phone,
             "national_id" : tenant.national_id,
+            "room_id" : occupancies [ -1 ].room_id if occupancies else None, # Get the room_id of the most recent occupancy if it exists, otherwise return None. Occupancies are ordered by start_date, so the most recent occupancy will be the last one in the list. [-1] takes the last element of the list.
             "created_at" : tenant.created_at
         }, 200
 
@@ -93,3 +97,28 @@ class TenantDetails ( Resource ) :
         db.session.commit ()
 
         return { "message" : "Tenant deleted successfully." }, 200
+
+
+
+# Retrieves a tenant's list of occupancies. This will allow us to show the tenant's current and past occupancies when we retrieve their details.
+class TenantOccupancies ( Resource ) :
+
+    def get ( self, tenant_id ) :
+
+        tenant = Tenant.query.get ( tenant_id )
+
+        if not tenant :
+            return { "error" : "Tenant not found." }, 404
+        
+        occupancies = tenant.occupancies
+
+        return [ {
+            "id" : o.id,
+            "room_id" : o.room_id,
+            "agreed_rent" : o.agreed_rent,
+            "start_date" : o.start_date,
+            "end_date" : o.end_date
+        } for o in occupancies ], 200
+    
+    # Work on how to create a new occupancy for a tenant. Maybe create a separate endpoint for creating occupancy and link it to the tenant using tenant_id in the request body. This way we can create a new occupancy for an existing tenant without having to update the tenant details.
+    # Whether it is adding an occupancy or updating an existing occupancy.
