@@ -116,3 +116,8 @@ class UserDetails ( Resource ) :
         db.session.commit ()
 
         return { "message" : "User account deleted successfully." }
+
+
+api.add_resource ( UserSignUp, "/api/users/signup" )
+api.add_resource ( UserLogin, "/api/users/login" )
+api.add_resource ( UserDetails, "/api/users/<int:user_id>" )
