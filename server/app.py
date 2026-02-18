@@ -11,7 +11,7 @@ from routes.users import UserSignUp, UserLogin, UserDetails
 from routes.rooms import RoomsList, RoomDetails
 from routes.tenants import CreateTenant, TenantsList, TenantDetails, TenantLedger, TenantOccupancies
 from routes.billings import GenerateBill, BillingsList # BillingDetails to be created later
-from routes.payments import PaymentsList, RecordPayment # PaymentDetails to be created later
+from routes.payments import PaymentsList, RecordPayment, PaymentDetails
 from routes.reports import GenerateArrearsReport
 # from routes.occupancies import
 
@@ -59,7 +59,7 @@ def create_app ( ) :
 
     api.add_resource ( PaymentsList, "/api/payments" )
     api.add_resource ( RecordPayment, "/api/payments/record" )
-    # api.add_resource ( PaymentDetails, "/api/payments/<int:payment_id>" )
+    api.add_resource ( PaymentDetails, "/api/payments/<int:payment_id>" )
 
     api.add_resource ( GenerateArrearsReport, "/api/reports/arrears" )
     # api.add_resource ( " To be filled. " )
