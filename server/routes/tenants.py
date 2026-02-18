@@ -122,3 +122,40 @@ class TenantOccupancies ( Resource ) :
     
     # Work on how to create a new occupancy for a tenant. Maybe create a separate endpoint for creating occupancy and link it to the tenant using tenant_id in the request body. This way we can create a new occupancy for an existing tenant without having to update the tenant details.
     # Whether it is adding an occupancy or updating an existing occupancy.
+
+# Retrieve a tenant's active occupancy, all monthly charges, all payments and running balances. 
+class TenantLedger ( Resource ) :
+
+    def get ( self, tenant_id ) :
+
+        tenant = Tenant.query.get ( tenant_id )
+
+        if not tenant :
+            return { "error" : "Tenant not found." }, 404
+        
+        occupancies = tenant.occupancies
+
+        ledger = []
+
+        for o in occupancies :
+            charges = o.monthly_charges
+            payments = [ p for c in charges for p in c.payments ] # Flatten the list of payments from all charges.
+
+            for c in charges :
+                ledger.append ( {
+                    "type" : "charge",
+                    "amount" : c.rent_amount + c.water_bill + c.other_charges,
+                    "date" : c.charge_date
+                } )
+            
+            for p in payments :
+                ledger.append ( {
+                    "type" : "payment",
+                    "amount" : p.amount,
+                    "date" : p.payment_date
+                } )
+        
+        # Sort the ledger by date.
+        ledger.sort ( key = lambda x : x [ "date" ] )
+
+        return ledger, 200
