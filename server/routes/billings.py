@@ -34,7 +34,7 @@ class GenerateMonthlyBillings ( Resource ) :
                 month = month,
                 year = year,
                 rent_amount = o.agreed_rent,
-                water_bill = MonthlyCharge.water_bill
+                water_bill = data.get ( "water_bill", 0 )
             )
 
             db.session.add ( charge )
