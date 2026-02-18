@@ -32,7 +32,7 @@ class Room ( db.Model ) :
     id = db.Column ( db.Integer, primary_key = True )
     room_number = db.Column ( db.String ( 3 ), unique = True, nullable = False )
     capacity = db.Column ( db.Integer, nullable = False, default = 1 )
-    default_rent = db.Column ( db.Numeric(10, 2), nullable = False )
+    default_rent = db.Column ( db.Numeric (10, 2), nullable = False )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
     status = db.Column ( db.Enum ( "available", "occupied", name = "room_status" ), nullable = False, default = "available" )
 
@@ -48,7 +48,7 @@ class Tenant ( db.Model ) :
     name = db.Column ( db.String ( 255 ), nullable = False )
     email = db.Column ( db.String ( 255 ), unique = True, nullable = False )
     phone = db.Column ( db.String ( 20 ), nullable = True )
-    national_id = db.Column ( db.String ( 8), unique = True, nullable = False )
+    national_id = db.Column ( db.String ( 10), unique = True, nullable = False )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
     updated_at = db.Column ( db.DateTime, default = datetime.utcnow, onupdate = datetime.utcnow )
 
@@ -63,11 +63,13 @@ class Occupancy ( db.Model ) :
     id = db.Column ( db.Integer, primary_key = True )
     tenant_id = db.Column ( db.Integer, db.ForeignKey ( "tenants.id" ), nullable = False )
     room_id = db.Column ( db.Integer, db.ForeignKey ( "rooms.id" ), nullable = False )
-    agreed_rent = db.Column ( db.Numeric(10, 2), nullable = False )
+    agreed_rent = db.Column ( db.Numeric (10, 2), nullable = False )
+    damages_or_dues = db.Column(db.Numeric (10, 2), nullable=True, default=0.0)
+    damages_reason = db.Column(db.String (255), nullable=True)
     start_date = db.Column ( db.Date, nullable = False )
     end_date = db.Column ( db.Date, nullable = True )
-    check_in_notes = db.Column ( db.Text, nullable = True )
-    check_out_notes = db.Column ( db.Text, nullable = True )
+    check_in_notes = db.Column ( db.String (255), nullable = True )
+    check_out_notes = db.Column ( db.String (255), nullable = True )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
     # Relationships
@@ -84,12 +86,12 @@ class MonthlyCharge ( db.Model ) :
 
     id = db.Column ( db.Integer, primary_key = True )
     occupancy_id = db.Column ( db.Integer, db.ForeignKey ( "occupancies.id" ), nullable = False )
-    rent_amount = db.Column ( db.Numeric(10, 2), nullable = False )
-    water_bill = db.Column ( db.Numeric(10, 2), nullable = False )
+    rent_amount = db.Column ( db.Numeric (10, 2), nullable = False )
+    water_bill = db.Column ( db.Numeric (10, 2), nullable = False )
     month = db.Column ( db.String ( 20), nullable = False )
     year = db.Column ( db.Integer, nullable = False )
     charge_date = db.Column ( db.Date, nullable = False )
-    other_charges = db.Column ( db.Numeric(10, 2), nullable = True, default = 0.0 )
+    # other_charges = db.Column ( db.Numeric(10, 2), nullable = True, default = 0.0 )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
     # Constraint to counter duplicate billing for the same month and year
@@ -112,7 +114,7 @@ class Payment ( db.Model ) :
     tenant_id = db.Column ( db.Integer, db.ForeignKey ( "tenants.id" ), nullable = False )
     monthly_charge_id = db.Column ( db.Integer, db.ForeignKey( "monthly_charges.id" ), nullable = False )
 
-    amount = db.Column ( db.Numeric( 10, 2 ), nullable = False )
+    amount = db.Column ( db.Numeric (10, 2), nullable = False )
     method = db.Column ( db.Enum( "mpesa", "cash", "bank", name="payment_methods" ) )
     mpesa_receipt = db.Column ( db.String (100), nullable=True )
 
