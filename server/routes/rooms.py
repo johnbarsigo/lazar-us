@@ -22,33 +22,7 @@ class RoomsList ( Resource ) :
         } for r in rooms ], 200
     
 
-class RoomDetails ( Resource ) :
-
-    def get ( self, room_id ) :
-
-        room = Room.query.get ( room_id )
-
-        if not room :
-            return { "error" : "Room not found." }, 404
-        
-        occupants = [ {
-            "tenant_id" : o.tenant_id,
-            "tenant_name" : o.tenant.name,
-            "start_date" : o.start_date,
-            "end_date" : o.end_date
-        } for o in room.occupancies ]
-
-        return {
-            "id" : room.id,
-            "room_number" : room.room_number,
-            "default_rent" : room.default_rent,
-            "capacity" : room.capacity,
-            "status" : room.status,
-            "current_occupants" : occupants,
-            "created_at" : room.created_at
-        }, 200
     
-
     def post ( self ) :
 
         data = request.get_json ()
@@ -78,3 +52,31 @@ class RoomDetails ( Resource ) :
         db.session.commit ()
 
         return { "message" : "Room deleted successfully." }, 200
+    
+
+class RoomDetails ( Resource ) :
+
+    def get ( self, room_id ) :
+
+        room = Room.query.get ( room_id )
+
+        if not room :
+            return { "error" : "Room not found." }, 404
+        
+        occupants = [ {
+            "tenant_id" : o.tenant_id,
+            "tenant_name" : o.tenant.name,
+            "start_date" : o.start_date,
+            "end_date" : o.end_date
+        } for o in room.occupancies ]
+
+        return {
+            "id" : room.id,
+            "room_number" : room.room_number,
+            "default_rent" : room.default_rent,
+            "capacity" : room.capacity,
+            "status" : room.status,
+            "current_occupants" : occupants,
+            "created_at" : room.created_at
+        }, 200
+    
