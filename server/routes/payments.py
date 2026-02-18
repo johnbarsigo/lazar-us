@@ -46,5 +46,21 @@ class RecordPayment ( Resource ) :
         return { "message" : "Payment recorded." }, 201
 
 
-api.add_resource ( PaymentsList, "/api/payments" )
-api.add_resource ( RecordPayment, "/api/payments/record" )
+class PaymentDetails ( Resource ) :
+
+    def get ( self, payment_id ) :
+
+        payment = Payment.query.get ( payment_id )
+
+        if not payment :
+            return { "error" : "Payment not found" }, 404
+        
+        return {
+            "id" : payment.id,
+            "tenant_id" : payment.tenant_id,
+            "monthly_charge_id" : payment.monthly_charge_id,
+            "amount" : payment.amount,
+            "method" : payment.method,
+            "payment_date" : payment.payment_date.isoformat(),
+            "created_at" : payment.created_at.isoformat()
+        }
