@@ -62,3 +62,24 @@ class BillingsList ( Resource ) :
         } for b in billings ], 200
 
 
+
+class BillingDetails ( Resource ) :
+
+    def get ( self, billing_id ) :
+
+        billing = MonthlyCharge.query.get ( billing_id )
+
+        if not billing :
+            return { "error" : "Billing record not found." }, 404
+        
+        return {
+            "id" : billing.id,
+            "occupancy_id" : billing.occupancy_id,
+            "month" : billing.month,
+            "year" : billing.year,
+            "rent_amount" : billing.rent_amount,
+            "water_bill" : billing.water_bill,
+            "other_charges" : billing.other_charges,
+            "charge_date" : billing.charge_date.isoformat(),
+            "created_at" : billing.created_at.isoformat()
+        }, 200

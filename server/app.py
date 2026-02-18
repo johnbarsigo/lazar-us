@@ -10,7 +10,7 @@ from models import db
 from routes.users import UserSignUp, UserLogin, UserDetails
 from routes.rooms import RoomsList, RoomDetails
 from routes.tenants import CreateTenant, TenantsList, TenantDetails, TenantLedger, TenantOccupancies
-from routes.billings import GenerateBill, BillingsList # BillingDetails to be created later
+from routes.billings import GenerateBill, BillingsList, BillingDetails
 from routes.payments import PaymentsList, RecordPayment, PaymentDetails
 from routes.reports import GenerateArrearsReport
 # from routes.occupancies import
@@ -55,7 +55,7 @@ def create_app ( ) :
 
     api.add_resource ( GenerateBill, "/api/billings/generate" )
     api.add_resource ( BillingsList, "/api/billings" )
-    # api.add_resource ( BillingDetails, "/api/billings/<int:billing_id>" ) # NOT YET CREATED
+    api.add_resource ( BillingDetails, "/api/billings/<int:billing_id>" ) # NOT YET CREATED
 
     api.add_resource ( PaymentsList, "/api/payments" )
     api.add_resource ( RecordPayment, "/api/payments/record" )
