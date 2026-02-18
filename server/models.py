@@ -1,10 +1,9 @@
 
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from flask_bcrypt import Bcrypt, generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
-# bcrypt = Bcrypt()
+
 
 
 class User ( db.Model ) :
@@ -21,15 +20,9 @@ class User ( db.Model ) :
     updated_at = db.Column ( db.DateTime, default = datetime.utcnow, onupdate = datetime.utcnow )
 
 
-
     def __repr__ ( self ) :
         return f"<User { self.username }>"
     
-    def set_password ( self, password ) :
-        self.password_hash = generate_password_hash ( password ).decode ( "utf-8" )
-    
-    def check_password ( self, password ) :
-        return check_password_hash ( self.password_hash, password )
 
 
 class Room ( db.Model ) :

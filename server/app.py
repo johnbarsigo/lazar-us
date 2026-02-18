@@ -29,7 +29,7 @@ def create_app ( ) :
     db.init_app ( app )
     Migrate ( app, db )
 
-    api = API ( app )
+    api = Api ( app )
 
     return app
 
