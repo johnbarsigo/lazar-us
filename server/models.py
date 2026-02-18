@@ -113,7 +113,7 @@ class Payment ( db.Model ) :
 
     tenant_id = db.Column ( db.Integer, db.ForeignKey ( "tenants.id" ), nullable = False )
     monthly_charge_id = db.Column ( db.Integer, db.ForeignKey( "monthly_charges.id" ), nullable = False )
-
+    status = db.Column ( db.Enum ( "pending", "completed", "failed", name = "payment_status" ), nullable = False, default = "pending" )
     amount = db.Column ( db.Numeric (10, 2), nullable = False )
     method = db.Column ( db.Enum( "mpesa", "cash", "bank", name="payment_methods" ) )
     mpesa_receipt = db.Column ( db.String (100), nullable=True )
@@ -126,3 +126,14 @@ class Payment ( db.Model ) :
 
     def __repr__ ( self ) :
         return f"Payment {self.id} for monthly charge ID :{self.monthly_charge_id}, through {self.method} on {self.payment_date}"
+
+
+class Notification ( db.Model ) :
+
+    __tablename__ = "notifications"
+
+    id = db.Column ( db.Integer, primary_key = True )
+    occupancy_id = db.Column ( db.Integer, db.ForeignKey ( "occupancies.id" ) )
+    message = db.Column ( db.String ( 255 ) )
+    sent_at = db.Column ( db.DateTime )
+    status = db.Column ( db.Enum ( "pending", "sent", "failed" ) )
