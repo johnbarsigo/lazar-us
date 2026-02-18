@@ -144,7 +144,7 @@ class TenantLedger ( Resource ) :
             for c in charges :
                 ledger.append ( {
                     "type" : "charge",
-                    "amount" : c.rent_amount + c.water_bill + c.other_charges,
+                    "amount" : c.rent_amount + c.water_bill,
                     "date" : c.charge_date
                 } )
             

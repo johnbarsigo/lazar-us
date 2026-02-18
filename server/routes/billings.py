@@ -79,7 +79,7 @@ class BillingDetails ( Resource ) :
             "year" : billing.year,
             "rent_amount" : billing.rent_amount,
             "water_bill" : billing.water_bill,
-            "other_charges" : billing.other_charges,
+            # "other_charges" : billing.other_charges,
             "charge_date" : billing.charge_date.isoformat(),
             "created_at" : billing.created_at.isoformat()
         }, 200
