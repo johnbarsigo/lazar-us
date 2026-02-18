@@ -62,5 +62,3 @@ class BillingsList ( Resource ) :
         } for b in billings ], 200
 
 
-api.add_resource ( GenerateMonthlyBillings, "/api/billings/generate" )
-api.add_resource ( BillingsList, "/api/billings" )

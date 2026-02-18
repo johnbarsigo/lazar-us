@@ -45,6 +45,3 @@ class RecordPayment ( Resource ) :
 
         return { "message" : "Payment recorded." }, 201
 
-
-api.add_resource ( PaymentsList, "/api/payments" )
-api.add_resource ( RecordPayment, "/api/payments/record" )
