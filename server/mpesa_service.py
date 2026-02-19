@@ -120,3 +120,61 @@ class MpesaService :
         # Record payment
         # Update payment status
         # Trigger notifications
+
+
+# API ENDPOINTS TO BE CREATED:
+# POST /api/mpesa/c2b/simulate - To simulate a C2B transaction for testing
+# POST /api/mpesa/c2b/confirmation - To handle the confirmation callback from Mpesa
+# POST /api/mpesa/c2b/validation - To handle the validation callback from Mpesa
+
+class MpesaCallback ( Resource ) :
+
+    def post ( self ) :
+
+        data = request.get_json ( )
+
+        mpesa_service = MpesaService ( )
+        response, status_code = mpesa_service.handle_c2b_callback ( data )
+
+        return response, status_code
+
+
+class MpesaSimulation ( Resource ) :
+
+    def post ( self ) :
+
+        data = request.get_json ( )
+
+        phone = data.get ( "phone" )
+        amount = data.get ( "amount" )
+        account_ref = data.get ( "account_ref" )
+
+        mpesa_service = MpesaService ( )
+        response = mpesa_service.c2b_simulate ( phone, amount, account_ref )
+
+        return response
+    
+# Actual mpesa validation endpoint to be called by Mpesa when a C2B transaction is initiated.
+class MpesaValidation ( Resource ) :
+
+    def post ( self ) :
+
+        data =  request.get_json ()
+        # For now, we will just return a success response to Mpesa. In a real implementation, you would validate the transaction details here.
+        return { "ResultCode" : 0, "ResultDesc" : "Validation successful." }
+    
+
+
+class InitiateChequePayment ( Resource ) :
+
+    def post ( self ) :
+
+        data = request.get_json ( )
+
+        tenant_id = data.get ( "tenant_id" )
+        amount = data.get ( "amount" )
+        account_ref = data.get ( "account_ref" )
+
+        # Here you would implement the logic to initiate a cheque payment, such as generating a unique reference number, recording the payment intent in the database, and providing instructions to the tenant.
+
+        return { "message" : "Cheque payment initiated successfully.", "account_ref" : account_ref }
