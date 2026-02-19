@@ -23,8 +23,9 @@ def create_app ( ) :
     # Load configuration from environment variables
 
     app.config [ "SQLALCHEMY_DATABASE_URI" ] = os.getenv ( "DATABASE_URL", "sqlite:///oks.db" )
-    app.config [ "SQLALCHEMY_TRACK_MODIFICATIONS" ] = False
-    app.config [ "SECRET_KEY" ] = "my-voice-is-my-password"
+    # app.config [ "SQLALCHEMY_TRACK_MODIFICATIONS" ] = False
+    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "my-voice-is-my-password")
+    app.config["SQLALCHEMY_ECHO"] = True  # Debug mode - remove in production
 
     # Initialize extensions
 
