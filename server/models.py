@@ -14,8 +14,13 @@ class User ( db.Model ) :
     username = db.Column ( db.String ( 255 ), unique = True, nullable = False )
     email = db.Column ( db.String ( 255 ), unique = True, nullable = False )
     password_hash = db.Column ( db.String ( 255 ), nullable = False )
+
     # Roles created so far : Admin, Manager
-    role = db.Column ( db.Enum ( "admin", "manager", name = "user_roles" ), nullable = False, default = "manager" )
+    role = db.Column (
+        db.Enum ( "admin", "manager", name = "user_roles" ),
+        nullable = False,
+        default = "manager" )
+        
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
     updated_at = db.Column ( db.DateTime, default = datetime.utcnow, onupdate = datetime.utcnow )
 

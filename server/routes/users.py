@@ -3,6 +3,8 @@ from flask import request, jsonify
 from models import db, User
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash # Remove password hashing from models.py and use werkzeug here for better integration with Flask
+from auth.jwt import decode_token
+from auth.permissions import admin_required, manager_required
 
 # NOTE : password_hash is the column name in the User model.
 

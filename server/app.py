@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from flask_cors import CORS
 from flask_migrate import Migrate
+from dotenv import load_dotenv
+from auth import jwt
 from models import db
 
 from routes.users import UserSignUp, UserLogin, UserDetails
@@ -18,14 +20,15 @@ from routes.reports import GenerateArrearsReport
 
 def create_app ( ) :
 
+    load_dotenv () # Load environment variables from .env file if it exists
+
     app = Flask ( __name__ )
 
     # Load configuration from environment variables
 
     app.config [ "SQLALCHEMY_DATABASE_URI" ] = os.getenv ( "DATABASE_URL", "sqlite:///oks.db" )
-    # app.config [ "SQLALCHEMY_TRACK_MODIFICATIONS" ] = False
-    app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY", "my-voice-is-my-password")
-    app.config["SQLALCHEMY_ECHO"] = True  # Debug mode - remove in production
+    app.config [ "SQLALCHEMY_TRACK_MODIFICATIONS" ] = False
+    app.config [ "JWT_SECRET_KEY" ] = os.getenv ( "JWT_SECRET_KEY", "e7ba32d2feaa467398beb846112494c5" )
 
     # Initialize extensions
 
@@ -36,6 +39,8 @@ def create_app ( ) :
         allow_headers = [ "Content-Type", "Authorization" ]
     )
     db.init_app ( app )
+    # Initiate JWT extension with Flask app
+    jwt.init_app ( app )
     Migrate ( app, db )
 
     api = Api ( app )
