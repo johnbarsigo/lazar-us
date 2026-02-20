@@ -1,7 +1,8 @@
 
-import jwt
+from flask_jwt_extended import JWTManager, get_jwt, create_access_token
 from datetime import datetime, timedelta
-from flask import current_app
+from flask import current_app, g, jsonify
+from functools import wraps
 from models import User
 
 DEFAULT_EXPIRATION_DELTA = timedelta ( hours = 1 )
