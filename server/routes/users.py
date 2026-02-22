@@ -79,14 +79,25 @@ class UserLogin ( Resource ) :
     # Login user
     def post ( self ) :
 
-        data = request.get_json ()
+        try :
 
-        user = User.query.filter_by ( username = data [ "username" ] ).first ()
+            data = request.get_json ()
 
-        if not user or not check_password_hash ( user.password_hash, data [ "password" ] ) :
-            return { "error" : "Invalid username or password." }, 401
+            if not data or not data.get ( "username" ) or not data.get ( "password" ) :
+                return { "error" : "Missing credentials."}, 400
 
-        return { "message" : "Login successful." }
+            user = User.query.filter_by ( username = data [ "username" ] ).first()
+
+            if not user or not check_password_hash ( user.password_hash, data [ "password" ] ) :
+                return { "error" : "Invalid username or password." }, 401
+            
+            # Generate JWT token
+            token = generate_token ( user.id, user.role )
+
+            return { "message" : f"Login successful, welcome {user.name}!" }, 200
+        
+        except Exception as e :
+            return { "error" : str (e) }, 500
 
 
 
@@ -111,7 +122,9 @@ class UserDetails ( Resource ) :
         }
 
     # Update user details (username, email, password).
+    # Admin required
     @token_required
+    @admin_required
     def put ( self, user_id ) :
 
         user = User.query.get ( user_id )
