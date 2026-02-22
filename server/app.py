@@ -10,7 +10,7 @@ from flask_jwt_extended import JWTManager
 from auth.jwt import generate_token
 from models import db
 
-from routes.users import UserSignUp, UserLogin, UserDetails
+from routes.users import UsersList, CreateUser, UserLogin, UserDetails
 from routes.rooms import RoomsList, RoomDetails
 from routes.tenants import CreateTenant, TenantsList, TenantDetails, TenantLedger, TenantOccupancies
 from routes.billings import GenerateBill, BillingsList, BillingDetails
@@ -51,7 +51,8 @@ def create_app ( ) :
     api = Api ( app )
 
     # Register API resources
-    api.add_resource ( UserSignUp, "/api/users/signup" )
+    api.add_resource ( UsersList, "/api/users" )
+    api.add_resource ( CreateUser, "/api/users/create" )
     api.add_resource ( UserLogin, "/api/users/login" )
     api.add_resource ( UserDetails, "/api/users/<int:user_id>" )
 
