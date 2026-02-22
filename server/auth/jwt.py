@@ -5,7 +5,7 @@ from flask import current_app, g, jsonify
 from functools import wraps
 from models import User
 
-
+DEFAULT_EXPIRATION_DELTA = timedelta ( hours = 1 )
 
 def token_required ( f ) :
 
@@ -59,10 +59,12 @@ def token_required ( f ) :
 # Generate JWT access token
 def generate_token ( user_id, user_role ) :
 
+    # Create JWT token with user role in claims.
     additional_claims = { "role" : user_role }
     token = create_access_token (
         identity = user_id,
-        additional_claims = additional_claims
+        additional_claims = additional_claims,
+        expires_delta = DEFAULT_EXPIRATION_DELTA
     )
 
     return token
