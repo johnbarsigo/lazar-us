@@ -10,6 +10,9 @@ from datetime import datetime
 class TenantsList ( Resource ) :
 
     # Retrieve all tenants and details.
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self ) :
 
         tenants = Tenant.query.all()
@@ -27,6 +30,9 @@ class TenantsList ( Resource ) :
 # Work on how to create occupancy after creating tenant. Maybe create occupancy in the same request as tenant creation.
 class CreateTenant ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def post ( self ) :
 
         data = request.get_json ()
@@ -47,6 +53,9 @@ class CreateTenant ( Resource ) :
 class TenantDetails ( Resource ) :
 
     # Retireve specific tenant and details.
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )
@@ -68,6 +77,10 @@ class TenantDetails ( Resource ) :
         }, 200
 
     # Update tenant details (name, email, phone, national_id). Work on how to update occupancy details if tenant details are updated. Maybe create a separate endpoint for updating occupancy details.
+
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def put ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )
@@ -88,6 +101,10 @@ class TenantDetails ( Resource ) :
     
     # Delete tenant. Work on how to handle occupancy and billing details when a tenant is deleted. Maybe set occupancy end date to current date and mark all future billings as cancelled or delete them.
     # Theory : Delete tenant, set occupancy end date to current date, delete all future billings. This way we maintain historical data for past occupancies and billings while ensuring that no future charges are generated for the deleted tenant.
+
+    # Admin required.
+    @token_required
+    @admin_required
     def delete ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )
@@ -105,6 +122,9 @@ class TenantDetails ( Resource ) :
 # Retrieves a tenant's list of occupancies. This will allow us to show the tenant's current and past occupancies when we retrieve their details.
 class TenantOccupancies ( Resource ) :
 
+    # Admin required.
+    @token_required
+    @admin_required
     def get ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )
@@ -128,6 +148,9 @@ class TenantOccupancies ( Resource ) :
 # Retrieve a tenant's active occupancy, all monthly charges, all payments and running balances. 
 class TenantLedger ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )

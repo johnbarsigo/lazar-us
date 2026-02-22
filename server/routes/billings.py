@@ -9,6 +9,9 @@ from datetime import date
 
 class GenerateMonthlyBillings ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def post ( self ) :
 
         data = request.get_json()
@@ -50,6 +53,9 @@ class GenerateMonthlyBillings ( Resource ) :
 
 class BillingsList ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self ) :
 
         billings = MonthlyCharge.query.all()
@@ -67,6 +73,9 @@ class BillingsList ( Resource ) :
 
 class BillingDetails ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self, billing_id ) :
 
         billing = MonthlyCharge.query.get ( billing_id )

@@ -9,6 +9,9 @@ from datetime import datetime
 
 class RoomsList ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self ) :
 
         rooms = Room.query.all()
@@ -24,7 +27,9 @@ class RoomsList ( Resource ) :
         } for r in rooms ], 200
     
 
-    
+    # Admin required.
+    @token_required
+    @admin_required
     def post ( self ) :
 
         data = request.get_json ()
@@ -41,8 +46,10 @@ class RoomsList ( Resource ) :
         db.session.commit ()
 
         return { "message" : f"Room { room.room_number } created successfully." }, 201
-    
 
+    # Admin required.
+    @token_required
+    @admin_required
     def delete ( self, room_id ) :
 
         room = Room.query.get ( room_id )
@@ -58,6 +65,9 @@ class RoomsList ( Resource ) :
 
 class RoomDetails ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self, room_id ) :
 
         room = Room.query.get ( room_id )

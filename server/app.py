@@ -6,7 +6,8 @@ from flask_restful import Api
 from flask_cors import CORS
 from flask_migrate import Migrate
 from dotenv import load_dotenv
-from auth import jwt
+from flask_jwt_extended import JWTManager
+from auth.jwt import generate_token
 from models import db
 
 from routes.users import UserSignUp, UserLogin, UserDetails
@@ -28,7 +29,10 @@ def create_app ( ) :
 
     app.config [ "SQLALCHEMY_DATABASE_URI" ] = os.getenv ( "DATABASE_URL", "sqlite:///oks.db" )
     app.config [ "SQLALCHEMY_TRACK_MODIFICATIONS" ] = False
+    
     app.config [ "JWT_SECRET_KEY" ] = os.getenv ( "JWT_SECRET_KEY", "e7ba32d2feaa467398beb846112494c5" )
+    # Set JWT token expiration time
+    app.config [ "JWT_ACCESS_TOKEN_EXPIRES" ] = timedelta ( hours = 1 ) 
 
     # Initialize extensions
 
@@ -40,7 +44,8 @@ def create_app ( ) :
     )
     db.init_app ( app )
     # Initiate JWT extension with Flask app
-    jwt.init_app ( app )
+    jwt = JWTManager ( app )
+    jwt.init_app( app )
     Migrate ( app, db )
 
     api = Api ( app )
