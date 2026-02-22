@@ -9,6 +9,9 @@ from sqlalchemy import func
 
 class GenerateArrearsReport ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self ) :
 
         results = db.session.query (
