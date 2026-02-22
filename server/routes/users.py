@@ -61,6 +61,7 @@ class UserLogin ( Resource ) :
 class UserDetails ( Resource ) :
 
     # Show logged in User details.
+    @token_required
     def get ( self, user_id ) :
 
         user = User.query.get ( user_id )
@@ -78,6 +79,7 @@ class UserDetails ( Resource ) :
         }
 
     # Update user details (username, email, password).
+    @token_required
     def put ( self, user_id ) :
 
         user = User.query.get ( user_id )
@@ -107,7 +109,10 @@ class UserDetails ( Resource ) :
     
 
     # Delete user account.
-    def delete ( self ) :
+    # Admin required.
+    @token_required
+    @admin_required
+    def delete ( self, user_id ) :
 
         user = User.query.get ( user_id )
 
