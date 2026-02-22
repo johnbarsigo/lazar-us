@@ -30,36 +30,47 @@ class UsersList ( Resource ) :
 
 
 
-class UserSignUp ( Resource ) :
+class CreateUser ( Resource ) :
 
     # Create new user
+    # Admin required
+    @token_required
+    @admin_required
     def post ( self ) :
 
-        data = request.get_json ()
+        try :
 
-        # Validate input
-        if not data.get( "username" ) or not data.get ( "email" ) or not data.get ( "password" ) :
-            return { "error" : "Username, email and password are required." }, 400
+            data = request.get_json ()
 
-        # Check if the username or email already exists
-        if User.query.filter_by ( username = data [ "username" ] ).first () :
-            return { "error" : "Username already exists." }, 400
+            # Validate input
+            if not data.get( "username" ) or not data.get ( "email" ) or not data.get ( "password" ) or not data.get ( "role" ):
+                return { "error" : "Username, email, password and role are required." }, 400
+
+            # Check if the username or email already exists
+            if User.query.filter_by ( username = data [ "username" ] ).first () :
+                return { "error" : "Username already exists." }, 400
+            
+            # Check if the email already exists
+            if User.query.filter_by ( email = data [ "email" ] ).first () :
+                return { "error" : "Email already exists." }, 400
+            
+            # Collecting new user data.
+            user = User (
+                username = data [ "username" ],
+                email = data [ "email" ],
+                # Hashing the password before storing
+                password_hash = generate_password_hash ( data [ "password" ] ),
+                role = data.get ( "role", "manager" ) # Defaults to manager
+            )
+
+            db.session.add ( user )
+            db.session.commit ()
         
-        # Check if the username or email already exists
-        if User.query.filter_by ( email = data [ "email" ] ).first () :
-            return { "error" : "Email already exists." }, 400
-        
-        # Collecting new user data.
-        user = User (
-            username = data [ "username" ],
-            email = data [ "email" ],
-            password_hash = generate_password_hash ( data [ "password" ] ) # Hashing the password before storing
-        )
+        except Exception as e :
+            db.session.rollback ()
+            return { "error" : str(e) }, 500
 
-        db.session.add ( user )
-        db.session.commit ()
-
-        return { "message" : "User registered successfully." }
+        return { "message" : f"User ID: {user.id}, name {user.name} registered successfully." }
 
 
 
