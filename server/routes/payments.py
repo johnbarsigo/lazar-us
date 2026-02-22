@@ -9,6 +9,9 @@ from datetime import datetime
 
 class PaymentsList ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self ) :
 
         payments = Payment.query.all()
@@ -25,6 +28,9 @@ class PaymentsList ( Resource ) :
 
 class RecordPayment ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def post ( self ) :
 
         data = request.get_json ()
@@ -50,6 +56,9 @@ class RecordPayment ( Resource ) :
 
 class PaymentDetails ( Resource ) :
 
+    # Admin/ Manager required.
+    @token_required
+    @manager_required
     def get ( self, payment_id ) :
 
         payment = Payment.query.get ( payment_id )
