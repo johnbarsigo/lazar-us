@@ -9,6 +9,27 @@ from auth.permissions import admin_required, manager_required
 # NOTE : password_hash is the column name in the User model.
 
 
+# List all users in the system. Admin required.
+class UsersList ( Resource ) :
+
+    # Admin required.
+    @token_required
+    @admin_required
+    def get ( self ) :
+        
+        users = User.query.all ()
+
+        return jsonify ( [ {
+            "id" : user.id,
+            "username" : user.username,
+            "email" : user.email,
+            "role" : user.role,
+            "created_at" : user.created_at.isoformat(),
+            "updated_at" : user.updated_at.isoformat()
+        } for user in users ] )
+
+
+
 class UserSignUp ( Resource ) :
 
     # Create new user

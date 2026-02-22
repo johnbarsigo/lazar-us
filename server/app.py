@@ -7,6 +7,7 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
+from auth.jwt import generate_token
 from models import db
 
 from routes.users import UserSignUp, UserLogin, UserDetails
@@ -44,6 +45,7 @@ def create_app ( ) :
     db.init_app ( app )
     # Initiate JWT extension with Flask app
     jwt = JWTManager ( app )
+    jwt.init_app( app )
     Migrate ( app, db )
 
     api = Api ( app )
