@@ -1,11 +1,11 @@
 
-from flask_jwt_extended import JWTManager, get_jwt, create_access_token, jwt_required as jwt_required_decorator
+from flask_jwt_extended import get_jwt, create_access_token, jwt_required as jwt_required_decorator
 from datetime import datetime, timedelta
 from flask import current_app, g, jsonify
 from functools import wraps
 from models import User
 
-DEFAULT_EXPIRATION_DELTA = timedelta ( hours = 1 )
+
 
 def token_required ( f ) :
 
@@ -39,22 +39,6 @@ def token_required ( f ) :
     return decorated
 
 
-# def generate_token ( user_id, role, expiration_delta = DEFAULT_EXPIRATION_DELTA, secret_key = DEFAULT_SECRET_KEY ) :
-
-#     payload = {
-#         "id" : user_id,
-#         "role" : role,
-#         "exp" : datetime.utcnow ( ) + expiration_delta
-#     }
-
-#     token = jwt.encode (
-#         payload,
-#         secret_key,
-#         algorithm = "HS256"
-#     )
-
-#     return token
-
 
 # Generate JWT access token
 def generate_token ( user_id, user_role ) :
@@ -63,8 +47,7 @@ def generate_token ( user_id, user_role ) :
     additional_claims = { "role" : user_role }
     token = create_access_token (
         identity = user_id,
-        additional_claims = additional_claims,
-        expires_delta = DEFAULT_EXPIRATION_DELTA
+        additional_claims = additional_claims
     )
 
     return token
