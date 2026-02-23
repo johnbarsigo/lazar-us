@@ -99,54 +99,54 @@ class OccupancyDetails ( Resource ) :
         return { "message" : "Occupancy deleted successfully." }, 200
     
 
-class CreateOccupancy ( Resource ) :
+# class CreateOccupancy ( Resource ) :
 
-    # Admin/ Manager required.
-    @token_required
-    @manager_required
-    def post ( self ) :
+#     # Admin/ Manager required.
+#     @token_required
+#     @manager_required
+#     def post ( self ) :
 
-        data = request.get_json ()
+#         data = request.get_json ()
 
-        tenant_id = data.get ( "tenant_id" )
-        room_id = data.get ( "room_id" )
-        rent_amount = data.get ( "rent_amount" )
-        water_bill = data.get ( "water_bill" )
-        other_charges = data.get ( "other_charges", 0.0 )
-        charge_date = data.get ( "charge_date" )
+#         tenant_id = data.get ( "tenant_id" )
+#         room_id = data.get ( "room_id" )
+#         rent_amount = data.get ( "rent_amount" )
+#         water_bill = data.get ( "water_bill" )
+#         other_charges = data.get ( "other_charges", 0.0 )
+#         charge_date = data.get ( "charge_date" )
 
-        tenant = Tenant.query.get ( tenant_id )
+#         tenant = Tenant.query.get ( tenant_id )
 
-        if not tenant :
-            return { "error" : "Tenant not found." }, 404
+#         if not tenant :
+#             return { "error" : "Tenant not found." }, 404
         
-        room = Room.query.get ( room_id )
+#         room = Room.query.get ( room_id )
 
-        if not room :
-            return { "error" : "Room not found." }, 404
+#         if not room :
+#             return { "error" : "Room not found." }, 404
         
-        occupancy = Occupancy (
-            tenant_id = tenant_id,
-            room_id = room_id,
-            rent_amount = rent_amount,
-            water_bill = water_bill,
-            other_charges = other_charges,
-            charge_date = charge_date
-        )
+#         occupancy = Occupancy (
+#             tenant_id = tenant_id,
+#             room_id = room_id,
+#             rent_amount = rent_amount,
+#             water_bill = water_bill,
+#             other_charges = other_charges,
+#             charge_date = charge_date
+#         )
 
-        db.session.add ( occupancy )
-        db.session.commit ()
+#         db.session.add ( occupancy )
+#         db.session.commit ()
 
-        return {
-            "message" : "Occupancy created successfully.",
-            "occupancy" : {
-                "id" : occupancy.id,
-                "tenant_id" : occupancy.tenant_id,
-                "room_id" : occupancy.room_id,
-                "rent_amount" : occupancy.rent_amount,
-                "water_bill" : occupancy.water_bill,
-                "other_charges" : occupancy.other_charges,
-                "total_amount" : occupancy.rent_amount + occupancy.water_bill + occupancy.other_charges,
-                "charge_date" : occupancy.charge_date
-            }
-        }, 201
+#         return {
+#             "message" : "Occupancy created successfully.",
+#             "occupancy" : {
+#                 "id" : occupancy.id,
+#                 "tenant_id" : occupancy.tenant_id,
+#                 "room_id" : occupancy.room_id,
+#                 "rent_amount" : occupancy.rent_amount,
+#                 "water_bill" : occupancy.water_bill,
+#                 "other_charges" : occupancy.other_charges,
+#                 "total_amount" : occupancy.rent_amount + occupancy.water_bill + occupancy.other_charges,
+#                 "charge_date" : occupancy.charge_date
+#             }
+#         }, 201
