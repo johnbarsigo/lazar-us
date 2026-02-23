@@ -98,7 +98,16 @@ class UserLogin ( Resource ) :
             # Generate JWT token
             token = generate_token ( user.id, user.role )
 
-            return { "message" : f"Login successful, welcome {user.name}!" }, 200
+            return {
+                "token" : token,
+                "user" : {
+                    "id" : user.id,
+                    "username" : user.username,
+                    "email" : user.email,
+                    "role" : user.role
+                },
+                "message" : f"Logged in successfully. Welcome { user.username }!"
+            }, 200
         
         except Exception as e :
             return { "error" : str (e) }, 500
