@@ -17,16 +17,20 @@ class UsersList ( Resource ) :
     @admin_required
     def get ( self ) :
         
-        users = User.query.all ()
+        try :
+            users = User.query.all ()
 
-        return jsonify ( [ {
-            "id" : user.id,
-            "username" : user.username,
-            "email" : user.email,
-            "role" : user.role,
-            "created_at" : user.created_at.isoformat(),
-            "updated_at" : user.updated_at.isoformat()
-        } for user in users ] )
+            return jsonify ( [ {
+                "id" : user.id,
+                "username" : user.username,
+                "email" : user.email,
+                "role" : user.role,
+                "created_at" : user.created_at.isoformat(),
+                "updated_at" : user.updated_at.isoformat()
+            } for user in users ] )
+        
+        except Exception as e :
+            return { "error" : str (e) }, 500
 
 
 
@@ -107,19 +111,28 @@ class UserDetails ( Resource ) :
     @token_required
     def get ( self, user_id ) :
 
-        user = User.query.get ( user_id )
-
-        if not user :
-            return { "error" : "User not found." }, 404
+        try :
+            # Authorization to allow user to view their own details or allow admin to view any user's details.
+            if g.current_user_id != user_id and g.current_user_role != "admin" :
+                return { "error" : "Unauthorized access." }, 403
+            
+            user = User.query.get ( user_id )
+            
+            if not user :
+                return { "error" : "User not found." }, 404
+            
+            return {
+                "id" : user.id,
+                "username" : user.username,
+                "email" : user.email,
+                "role" : user.role,
+                "created_at" : user.created_at.isoformat(),
+                "updated_at" : user.updated_at.isoformat()
+            }
         
-        return {
-            "id" : user.id,
-            "username" : user.username,
-            "email" : user.email,
-            "role" : user.role,
-            "created_at" : user.created_at.isoformat(),
-            "updated_at" : user.updated_at.isoformat()
-        }
+        except Exception as e :
+            return { "error" : str (e) }, 500
+    
 
     # Update user details (username, email, password).
     # Admin required
@@ -127,30 +140,44 @@ class UserDetails ( Resource ) :
     @admin_required
     def put ( self, user_id ) :
 
-        user = User.query.get ( user_id )
+        try :
 
-        if not user :
-            return { "error" : "User not found." }, 404
-        
-        data = request.get_json ()
+            user = User.query.get ( user_id )
 
-        if data.get ( "username" ) :
-            user.username = data [ "username" ]
+            if not user :
+                return { "error" : "User not found." }, 404
+            
+            data = request.get_json ()
 
-            # LATER UPDATE TO CHECK IF THE NEW USERNAME ALREADY EXISTS IN THE DATABASE TO AVOID DUPLICATES.
-        
-        if data.get ( "email" ) :
-            user.email = data [ "email" ]
-        
-        if data.get ( "password" ) :
-            user.password_hash = generate_password_hash ( data [ "password" ] )
-        
-        # Update the timestamp for when the user details were last updated.
-        user.updated_at = db.func.now ()
-        
-        db.session.commit ()
+            if data.get ( "username" ) :
+                # Check whether username is already taken
+                if User.query.filter_by ( username = data [ "username" ]).filter ( User.id != user_id ).first ():
+                    return { "error" : "Username already exists." }, 400
+            
+            if data.get ( "email" ) :
+                user.email = data [ "email" ]
+            
+            if data.get ( "password" ) :
+                user.password_hash = generate_password_hash ( data [ "password" ] )
+            
+            if data.get ( "role" ) :
+                valid_roles = [ "admin", "manager" ]
+                # Validate roles
+                if data [ "role" ] not in valid_roles :
+                    return { "error" : f"Invalid role. Valid roles are: {', '.join ( valid_roles ) }." }, 400
 
-        return { "message" : "User details updated successfully." }
+                user.role = data [ "role" ]
+            
+            # Update the timestamp for when the user details were last updated.
+            user.updated_at = db.func.now ()
+            
+            db.session.commit ()
+
+            return { "message" : f"User { user.username } details updated successfully." }
+        
+        except Exception as e :
+            db.session.rollback ()
+            return { "error" : str (e) }, 500
     
 
     # Delete user account.
@@ -159,12 +186,22 @@ class UserDetails ( Resource ) :
     @admin_required
     def delete ( self, user_id ) :
 
-        user = User.query.get ( user_id )
+        try :
 
-        if not user :
-            return { "error" : "User not found." }, 404
+            user = User.query.get ( user_id )
+
+            if not user :
+                return { "error" : "User not found." }, 404
+            
+            # Prevent admin from deleting their own account to avoid accidental lockout.
+            if user.id == g.current_user_id :
+                return { "error" : "Cannot delete your own account." }, 400
+            
+            db.session.delete ( user )
+            db.session.commit ()
+
+            return { "message" : "User account deleted successfully." }
         
-        db.session.delete ( user )
-        db.session.commit ()
-
-        return { "message" : "User account deleted successfully." }
+        except Exception as e :
+            db.session.rollback ()
+            return { "error" : str (e) }, 500
