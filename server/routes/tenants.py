@@ -3,7 +3,7 @@ from flask import request
 from flask_restful import Resource
 from auth.jwt import decode_token
 from auth.permissions import admin_required, manager_required
-from models import db, Tenant
+from models import db, Tenant, Occupancy, Room
 from datetime import datetime
 
 
@@ -28,26 +28,66 @@ class TenantsList ( Resource ) :
 
 
 # Work on how to create occupancy after creating tenant. Maybe create occupancy in the same request as tenant creation.
-class CreateTenant ( Resource ) :
+class CreateTenantOccupancy ( Resource ) :
+
+    # Endpoint : POST /api/tenants/check-in
+    # Creates tenant with occupancy in one request.
 
     # Admin/ Manager required.
     @token_required
     @manager_required
     def post ( self ) :
 
-        data = request.get_json ()
+        try :
 
-        tenant = Tenant (
-            name = data [ "name" ],
-            email = data [ "email" ],
-            phone = data [ "phone" ],
-            national_id = data [ "national_id" ]
-        )
+            data = request.get_json ()
 
-        db.session.add ( tenant )
-        db.session.commit ()
+            # Validate required fields for tenant and occupancy creation.
+            required_fields = [ "name", "email", "phone", "national_id", "room_id", "agreed_rent", "start_date" ]
 
-        return { "message" : f"Tenant id { tenant.id }, { tenant.name } created successfully." }, 201
+            for field in required_fields :
+                if field not in data :
+                    return { "error" : f"{ field } is required." }, 400
+            
+            # Verify room availability
+            room = Room.query.get ( data [ "room_id" ] )
+            if not room or room.status != "available" :
+                return { "error" : "Room not available."}, 409
+
+            # Create tenant instance.
+            tenant = Tenant (
+                name = data [ "name" ],
+                email = data [ "email" ],
+                phone = data [ "phone" ],
+                national_id = data [ "national_id" ]
+            )
+
+            db.session.add ( tenant )
+            # Getting tenant ID before commit to use it for occupancy creation.
+            db.session.flush ()
+
+            # Create occupancy instance linked to the above tenant.
+            start_date = datetime.fromisoformat ( data [ "start_date" ] ).date()
+            occupancy = Occupancy (
+                tenant_id = tenant.id,
+                room_id = data [ "room_id" ],
+                agreed_rent = data [ "agreed_rent" ],
+                start_date = start_date
+            )
+
+            db.session.add ( occupancy )
+            db.session.commit ()
+
+            # Update room status to occupied.
+            room.status = "occupied"
+            db.session.commit ()
+
+            return {
+                "message" : f"Tenant id { tenant.id }, { tenant.name } created successfully and checked into room { room.room_number }. Check-in date: { start_date }."
+            }, 201
+        
+        except Exception as e :
+            return { "error" : str (e) }, 500
 
 
 class TenantDetails ( Resource ) :
@@ -142,8 +182,7 @@ class TenantOccupancies ( Resource ) :
             "end_date" : o.end_date
         } for o in occupancies ], 200
     
-    # Work on how to create a new occupancy for a tenant. Maybe create a separate endpoint for creating occupancy and link it to the tenant using tenant_id in the request body. This way we can create a new occupancy for an existing tenant without having to update the tenant details.
-    # Whether it is adding an occupancy or updating an existing occupancy.
+
 
 # Retrieve a tenant's active occupancy, all monthly charges, all payments and running balances. 
 class TenantLedger ( Resource ) :

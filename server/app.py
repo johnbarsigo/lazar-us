@@ -59,7 +59,7 @@ def create_app ( ) :
     api.add_resource ( RoomsList, "/api/rooms" )
     api.add_resource ( RoomDetails, "/api/rooms/<int:room_id>" )
 
-    api.add_resource ( CreateTenant, "/api/tenants/create" )
+    api.add_resource ( CreateTenantOccupancy, "/api/tenants/check-in" )
     api.add_resource ( TenantsList, "/api/tenants" )
     api.add_resource ( TenantDetails, "/api/tenants/<int:tenant_id>")
     api.add_resource ( TenantLedger, "/api/tenants/<int:tenant_id>/ledger" )
