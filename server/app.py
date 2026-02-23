@@ -65,6 +65,9 @@ def create_app ( ) :
     api.add_resource ( TenantLedger, "/api/tenants/<int:tenant_id>/ledger" )
     api.add_resource ( TenantOccupancies, "/api/tenants/<int:tenant_id>/occupancies" )
 
+    api.add_resource ( Occupancies, "/api/occupancies" )
+    api.add_resource ( OccupancyDetails, "/api/occupancies/<int:occupancy_id>" )
+
     api.add_resource ( GenerateBill, "/api/billings/generate" )
     api.add_resource ( BillingsList, "/api/billings" )
     api.add_resource ( BillingDetails, "/api/billings/<int:billing_id>" )
