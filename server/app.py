@@ -59,7 +59,7 @@ def create_app ( ) :
     api.add_resource ( RoomsList, "/api/rooms" )
     api.add_resource ( RoomDetails, "/api/rooms/<int:room_id>" )
 
-    api.add_resource ( CreateTenantOccupancy, "/api/tenants/check-in" )
+    api.add_resource ( CreateTenantOccupancy, "/api/tenants/check-in" ) # Handles both new tenant-occupancy instances (NEW TENANT) and new occupancies for existing tenants (ROOM SWITCH).
     api.add_resource ( TenantsList, "/api/tenants" )
     api.add_resource ( TenantDetails, "/api/tenants/<int:tenant_id>")
     api.add_resource ( TenantLedger, "/api/tenants/<int:tenant_id>/ledger" )
@@ -67,14 +67,14 @@ def create_app ( ) :
 
     api.add_resource ( GenerateBill, "/api/billings/generate" )
     api.add_resource ( BillingsList, "/api/billings" )
-    api.add_resource ( BillingDetails, "/api/billings/<int:billing_id>" ) # NOT YET CREATED
+    api.add_resource ( BillingDetails, "/api/billings/<int:billing_id>" )
 
     api.add_resource ( PaymentsList, "/api/payments" )
     api.add_resource ( RecordPayment, "/api/payments/record" )
     api.add_resource ( PaymentDetails, "/api/payments/<int:payment_id>" )
 
     api.add_resource ( GenerateArrearsReport, "/api/reports/arrears" )
-    # api.add_resource ( " To be filled. " )
+   
 
     return app
 
