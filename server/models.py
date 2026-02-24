@@ -1,6 +1,6 @@
 
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 
 db = SQLAlchemy()
 
@@ -100,7 +100,9 @@ class MonthlyCharge ( db.Model ) :
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
     # Constraint to counter duplicate billing for the same month and year
-    __table_args__ = ( db.UniqueConstraint( "occupancy_id", "month", "year", name= "unique_monthly_charge" ) )
+    __table_args__ = (
+        db.UniqueConstraint ( "occupancy_id", "month", "year" , name = "unique_monthly_charge" ),
+    )
 
     # Relationships
     occupancy = db.relationship ( "Occupancy", backref = "monthly_charges" )

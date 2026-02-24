@@ -1,8 +1,8 @@
 
 from flask import request
 from flask_restful import Resource
-from auth.jwt import decode_token
 from auth.permissions import admin_required, manager_required
+from auth.jwt import token_required
 from models import db, Tenant, Occupancy, Room
 from datetime import datetime
 
@@ -205,7 +205,7 @@ class CreateTenantOccupancy ( Resource ) :
                 "old_occupancy" : active_occupancy.to_dict (),
                 "old_room" : old_room.to_dict (),
                 "new_occupancy" : new_occupancy.to_dict (),
-                "new_room" : new_room,to_dict (),
+                "new_room" : new_room.to_dict (),
                 "message" : f"Tenant id { tenant.id }, { tenant.name } switched from room { old_room.room_number } to room { new_room.room_number } on { switch_date }."
             }, 201
         
