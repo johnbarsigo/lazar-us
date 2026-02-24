@@ -5,7 +5,7 @@ from flask import current_app, g, jsonify
 from functools import wraps
 from models import User
 
-
+DEFAULT_SECRET_KEY = "e7ba32d2feaa467398beb846112494c5"
 
 def token_required ( f ) :
 

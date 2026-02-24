@@ -12,7 +12,7 @@ from models import db
 
 from routes.users import UsersList, CreateUser, UserLogin, UserDetails
 from routes.rooms import RoomsList, RoomDetails
-from routes.tenants import CreateTenant, TenantsList, TenantDetails, TenantLedger, TenantOccupancies
+from routes.tenants import CreateTenantOccupancy, TenantsList, TenantDetails, TenantLedger, TenantOccupancies
 from routes.billings import GenerateBill, BillingsList, BillingDetails
 from routes.payments import PaymentsList, RecordPayment, PaymentDetails
 from routes.reports import GenerateArrearsReport
