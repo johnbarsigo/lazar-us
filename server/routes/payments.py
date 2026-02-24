@@ -1,7 +1,6 @@
 
 from flask import request, jsonify
 from flask_restful import Resource
-from auth.jwt import decode_token
 from auth.permissions import admin_required, manager_required
 from auth.jwt import token_required
 from models import db, Payment, MonthlyCharge

@@ -1,6 +1,5 @@
 
 from flask import request, g, jsonify
-from auth.jwt import decode_token
 from functools import wraps
 from models import User
 
