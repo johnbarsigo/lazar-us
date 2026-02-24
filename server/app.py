@@ -8,15 +8,15 @@ from flask_migrate import Migrate
 from dotenv import load_dotenv
 from flask_jwt_extended import JWTManager
 from auth.jwt import generate_token
-from models import db
+from models import db, timedelta
 
 from routes.users import UsersList, CreateUser, UserLogin, UserDetails
 from routes.rooms import RoomsList, RoomDetails
 from routes.tenants import CreateTenantOccupancy, TenantsList, TenantDetails, TenantLedger, TenantOccupancies
-from routes.billings import GenerateBill, BillingsList, BillingDetails
+from routes.billings import GenerateMonthlyBillings, BillingsList, BillingDetails
 from routes.payments import PaymentsList, RecordPayment, PaymentDetails
 from routes.reports import GenerateArrearsReport
-# from routes.occupancies import
+from routes.occupancies import Occupancies, OccupancyDetails
 
 
 def create_app ( ) :
@@ -68,7 +68,7 @@ def create_app ( ) :
     api.add_resource ( Occupancies, "/api/occupancies" )
     api.add_resource ( OccupancyDetails, "/api/occupancies/<int:occupancy_id>" )
 
-    api.add_resource ( GenerateBill, "/api/billings/generate" )
+    api.add_resource ( GenerateMonthlyBillings, "/api/billings/generate" )
     api.add_resource ( BillingsList, "/api/billings" )
     api.add_resource ( BillingDetails, "/api/billings/<int:billing_id>" )
 
