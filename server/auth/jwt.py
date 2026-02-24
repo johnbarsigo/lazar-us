@@ -5,7 +5,6 @@ from flask import current_app, g, jsonify
 from functools import wraps
 from models import User
 
-DEFAULT_SECRET_KEY = "e7ba32d2feaa467398beb846112494c5"
 
 def token_required ( f ) :
 
@@ -53,19 +52,35 @@ def generate_token ( user_id, user_role ) :
     return token
 
 
-def decode_token ( token, secret_key = DEFAULT_SECRET_KEY ) :
 
-    try :
-        payload = jwt.decode (
-            token,
-            secret_key,
-            algorithms = [ "HS256" ]
-        )
+def verify_token_manually(token):
+    """
+    Manually verify and decode a token
     
-    except jwt.ExpiredSignatureError :
-        return None, "Token has expired."
+    Use this for:
+    - M-Pesa callbacks (external requests)
+    - Background jobs
+    - Any context where flask-jwt-extended decorators don't work
     
-    except jwt.InvalidTokenError :
-        return None, "Invalid token."
+    Args:
+        token (str): The JWT token to verify
+        
+    Returns:
+        tuple: (user_id, error_message) or (None, error_message) if invalid
+        
+    Example:
+        user_id, error = verify_token_manually(token)
+        if error:
+            return {"error": error}, 401
+    """
+    try:
+        payload = jwt_decode_token(token)
+        user_id = payload.get("sub")
+        
+        if not user_id:
+            return None, "Invalid token structure"
+        
+        return user_id, None
     
-    return payload [ "id" ], None
+    except Exception as e:
+        return None, f"Token verification failed: {str(e)}"
