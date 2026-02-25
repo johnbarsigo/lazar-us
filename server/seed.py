@@ -255,40 +255,49 @@ def seed_payments(occupancies, users):
     
     payments = [
         Payment(
-            occupancy_id=occupancies[0].id,  # Alice
+            occupancy_id=occupancies[0].id,  # 
+            # =================== Currently using tenant_id but occupancy_id would be better. Revisit =====================
+            tenant_id=occupancies[0].tenant_id,  # Maxwell
             amount=5000.00,
             payment_method="mpesa",
-            transaction_id="MPM0001",
-            paid_by_user_id=occupancies[0].tenant.user_id,
-            paid_date=now - timedelta(days=45),
+            mpesa_receipt="MPM0001",
+            # paid_by_user_id=occupancies[0].tenant.user_id,
+            payment_date=now - timedelta(days=45),
             status="completed"
         ),
         Payment(
-            occupancy_id=occupancies[0].id,  # Alice
+            occupancy_id=occupancies[0].id,  # Maxwell
+            tenant_id=occupancies[0].tenant_id, # Maxwell
             amount=5500.00,
-            payment_method="bank_transfer",
-            transaction_id="BANK0001",
-            paid_by_user_id=occupancies[0].tenant.user_id,
-            paid_date=now - timedelta(days=15),
-            status="completed"
+            payment_method="bank",
+            # transaction_id="BANK0001",
+            # =================== Add transaction ID to database/ models ===================
+            # paid_by_user_id=occupancies[0].tenant.user_id,
+            payment_date=now - timedelta(days=15),
+            status="completed",
+            monthly_charge_id=occupancies[0].monthly_charges[1].id  # Link to specific monthly charge
         ),
         Payment(
-            occupancy_id=occupancies[1].id,  # Bob
+            occupancy_id=occupancies[1].id,  # Alonso
+            tenant_id = occupancies[1].tenant_id, # Alonso
             amount=8000.00,
             payment_method="mpesa",
-            transaction_id="MPM0002",
-            paid_by_user_id=occupancies[1].tenant.user_id,
-            paid_date=now - timedelta(days=30),
-            status="completed"
+            mpesa_receipt="MPM0002",
+            # paid_by_user_id=occupancies[1].tenant.user_id,
+            payment_date=now - timedelta(days=30),
+            status="completed",
+            monthly_charge_id=occupancies[1].monthly_charges[1].id
         ),
         Payment(
-            occupancy_id=occupancies[2].id,  # Charlie
+            occupancy_id=occupancies[2].id,  # Lewis
+            tenant_id=occupancies[2].tenant_id, # Lewis
             amount=5000.00,
             payment_method="cash",
-            transaction_id="CASH0001",
-            paid_by_user_id=occupancies[2].tenant.user_id,
-            paid_date=now - timedelta(days=5),
-            status="completed"
+            # transaction_id="CASH0001",
+            # paid_by_user_id=occupancies[2].tenant.user_id,
+            payment_date=now - timedelta(days=5),
+            status="completed",
+            monthly_charge_id=occupancies[2].monthly_charges[0].id
         ),
     ]
     
