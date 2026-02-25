@@ -180,8 +180,8 @@ def seed_occupancies(tenants, rooms, users):
         Occupancy(
             tenant_id=tenants[0].id,  # Maxwell
             room_id=rooms[2].id,  # Room 103
-            check_in_date=now - timedelta(days=90),
-            check_out_date=None,
+            start_date=now - timedelta(days=90),
+            end_date=None,
             agreed_rent=5000.00,
             status="active",
             # created_by_user_id=users[1].id  # Manager
@@ -189,8 +189,8 @@ def seed_occupancies(tenants, rooms, users):
         Occupancy(
             tenant_id=tenants[1].id,  # Alonso
             room_id=rooms[4].id,  # Room 202
-            check_in_date=now - timedelta(days=60),
-            check_out_date=None,
+            start_date=now - timedelta(days=60),
+            end_date=None,
             agreed_rent=8000.00,
             status="active",
             # created_by_user_id=users[1].id
@@ -198,8 +198,8 @@ def seed_occupancies(tenants, rooms, users):
         Occupancy(
             tenant_id=tenants[2].id,  # Lewis
             room_id=rooms[0].id,  # Room 101
-            check_in_date=now - timedelta(days=30),
-            check_out_date=None,
+            start_date=now - timedelta(days=30),
+            end_date=None,
             agreed_rent=5000.00,
             status="active",
             # created_by_user_id=users[1].id
