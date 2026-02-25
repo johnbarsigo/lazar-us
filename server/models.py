@@ -143,4 +143,4 @@ class Notification ( db.Model ) :
     occupancy_id = db.Column ( db.Integer, db.ForeignKey ( "occupancies.id" ) )
     message = db.Column ( db.String ( 255 ) )
     sent_at = db.Column ( db.DateTime )
-    status = db.Column ( db.Enum ( "pending", "sent", "failed" ) )
+    status = db.Column ( db.Enum ( "pending", "sent", "failed", name = "notification_status" ) )
