@@ -314,36 +314,36 @@ def seed_notifications(users, occupancies):
     
     notifications = [
         Notification(
-            user_id=users[3].id,  # Alice (tenant)
-            title="Rent Due",
+            occupancy_id=occupancies[0].id,
+            # title="Rent Due",
             message="Your rent of KES 5,000 is due on the 25th",
-            notification_type="payment_reminder",
-            is_read=False,
-            created_at=now - timedelta(days=5)
+            # notification_type="payment_reminder",
+            status="sent",
+            sent_at=now - timedelta(days=5)
         ),
         Notification(
-            user_id=users[1].id,  # Manager
-            title="New Tenant Check-in",
-            message="Charlie has checked into Room 101",
-            notification_type="checkin",
-            is_read=True,
-            created_at=now - timedelta(days=30)
+            occupancy_id=occupancies[2].id,
+            # title="New Tenant Check-in",
+            message="Lewis has checked into Room 101",
+            # notification_type="checkin",
+            status="pending",
+            sent_at=now - timedelta(days=30)
         ),
         Notification(
-            user_id=users[0].id,  # Admin
-            title="Room Maintenance Completed",
+            occupancy_id=occupancies[0].id,  # Max
+            # title="Room Maintenance Completed",
             message="Room 203 maintenance has been completed",
-            notification_type="maintenance",
-            is_read=True,
-            created_at=now - timedelta(days=7)
+            # notification_type="maintenance",
+            status="failed",
+            sent_at=now - timedelta(days=7)
         ),
         Notification(
-            user_id=users[4].id,  # Bob (tenant)
-            title="Payment Received",
+            occupancy_id=occupancies[2].id, # Lewis
+            # title="Payment Received",
             message="Your payment of KES 8,000 has been received",
-            notification_type="payment_confirmation",
-            is_read=True,
-            created_at=now - timedelta(days=30)
+            # notification_type="payment_confirmation",
+            status="sent",
+            sent_at=now - timedelta(days=30)
         ),
     ]
     
