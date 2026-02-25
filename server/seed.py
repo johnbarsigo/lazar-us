@@ -23,7 +23,7 @@ def seed_users():
             username="Admin1",
             email="admin1@oksms.com",
             # phone="254712345678",
-            password=generate_password_hash("admin123"),
+            password_hash=generate_password_hash("admin123"),
             role="admin"
             # is_active=True
         ),
@@ -31,7 +31,7 @@ def seed_users():
             username="Admin2",
             email="admin2@oksms.com",
             # phone="254712345679",
-            password=generate_password_hash("admin234"),
+            password_hash=generate_password_hash("admin234"),
             role="admin"
             # is_active=False
         ),
@@ -39,7 +39,7 @@ def seed_users():
             username="MaryMG",
             email="marymanager@oksms.com",
             # phone="254712345680",
-            password=generate_password_hash("manager123"),
+            password_hash=generate_password_hash("manager123"),
             role="manager"
             # is_active=True
         ),
@@ -47,7 +47,7 @@ def seed_users():
             username="AliceMG",
             email="alicemanager@oksms.com",
             # phone="254712345681",
-            password=generate_password_hash("manager234"),
+            password_hash=generate_password_hash("manager234"),
             role="manager"
             # is_active=True
         ),
@@ -55,7 +55,7 @@ def seed_users():
             username="BobMG",
             email="bobmanager@oksms.com",
             # phone="254712345682",
-            password=generate_password_hash("manager345"),
+            password_hash=generate_password_hash("manager345"),
             role="manager"
             # is_active=True
         ),
@@ -63,7 +63,7 @@ def seed_users():
             username="CharlieMG",
             email="charliemanager@oksms.com",
             # phone="254712345683",
-            password=generate_password_hash("manager456"),
+            password_hash=generate_password_hash("manager456"),
             role="manager"
             # is_active=False
         ),
@@ -81,51 +81,51 @@ def seed_rooms(users):
     rooms = [
         Room(
             room_number="101",
-            floor=1,
+            # floor=1,
             capacity=1,
-            rent_amount=5000.00,
-            status="available",
-            created_by_user_id=users[0].id  # Admin
+            default_rent=5000.00,
+            status="occupied",
+            # created_by_user_id=users[0].id  # Admin
         ),
         Room(
             room_number="102",
-            floor=1,
+            # floor=1,
             capacity=2,
-            rent_amount=7500.00,
+            default_rent=7500.00,
             status="available",
-            created_by_user_id=users[0].id
+            # created_by_user_id=users[0].id  # Admin
         ),
         Room(
             room_number="103",
-            floor=1,
+            # floor=1,
             capacity=1,
-            rent_amount=5000.00,
+            default_rent=5000.00,
             status="occupied",
-            created_by_user_id=users[0].id
+            # created_by_user_id=users[0].id
         ),
         Room(
             room_number="201",
-            floor=2,
+            # floor=2,
             capacity=2,
-            rent_amount=8000.00,
+            default_rent=8000.00,
             status="available",
-            created_by_user_id=users[0].id
+            # created_by_user_id=users[0].id
         ),
         Room(
             room_number="202",
-            floor=2,
+            # floor=2,
             capacity=2,
-            rent_amount=8000.00,
+            default_rent=8000.00,
             status="occupied",
-            created_by_user_id=users[0].id
+            # created_by_user_id=users[0].id
         ),
         Room(
             room_number="203",
-            floor=2,
+            # floor=2,
             capacity=1,
-            rent_amount=5500.00,
-            status="maintenance",
-            created_by_user_id=users[0].id
+            default_rent=5500.00,
+            status="available",
+            # created_by_user_id=users[0].id
         ),
     ]
     
@@ -140,25 +140,28 @@ def seed_tenants(users):
     
     tenants = [
         Tenant(
-            user_id=users[3].id,  # Alice
+            name="Maxwell",
+            email="maxwell@gmail.com",
             national_id="12345678",
-            emergency_contact="0712999111",
-            emergency_contact_name="Sarah",
-            occupation="Engineer"
+            phone="0712999111",
+            # emergency_contact_name="Sarah",
+            # occupation="Engineer"
         ),
         Tenant(
-            user_id=users[4].id,  # Bob
+            name="Alonso",
+            email="alonso@gmail.com",
             national_id="87654321",
-            emergency_contact="0712999222",
-            emergency_contact_name="Maria",
-            occupation="Teacher"
+            phone="0712999222",
+            # emergency_contact_name="Maria",
+            # occupation="Teacher"
         ),
         Tenant(
-            user_id=users[5].id,  # Charlie
+            name="Lewis",
+            email="lewis@gmail.com",
             national_id="11223344",
-            emergency_contact="0712999333",
-            emergency_contact_name="John",
-            occupation="Doctor"
+            phone="0712999333",
+            # emergency_contact_name="John",
+            # occupation="Doctor"
         ),
     ]
     
@@ -175,16 +178,16 @@ def seed_occupancies(tenants, rooms, users):
     
     occupancies = [
         Occupancy(
-            tenant_id=tenants[0].id,  # Alice
+            tenant_id=tenants[0].id,  # Maxwell
             room_id=rooms[2].id,  # Room 103
             check_in_date=now - timedelta(days=90),
             check_out_date=None,
             monthly_rent=5000.00,
             status="active",
-            created_by_user_id=users[1].id  # Manager
+            # created_by_user_id=users[1].id  # Manager
         ),
         Occupancy(
-            tenant_id=tenants[1].id,  # Bob
+            tenant_id=tenants[1].id,  # Alonso
             room_id=rooms[4].id,  # Room 202
             check_in_date=now - timedelta(days=60),
             check_out_date=None,
@@ -193,7 +196,7 @@ def seed_occupancies(tenants, rooms, users):
             created_by_user_id=users[1].id
         ),
         Occupancy(
-            tenant_id=tenants[2].id,  # Charlie
+            tenant_id=tenants[2].id,  # Lewis
             room_id=rooms[0].id,  # Room 101
             check_in_date=now - timedelta(days=30),
             check_out_date=None,
