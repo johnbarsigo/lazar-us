@@ -20,52 +20,52 @@ def seed_users():
     
     users = [
         User(
-            name="Admin User",
-            email="admin@oksms.com",
-            phone="254712345678",
+            username="Admin1",
+            email="admin1@oksms.com",
+            # phone="254712345678",
             password=generate_password_hash("admin123"),
-            role="admin",
-            is_active=True
+            role="admin"
+            # is_active=True
         ),
         User(
-            name="Manager John",
-            email="manager@oksms.com",
-            phone="254712345679",
+            username="Admin2",
+            email="admin2@oksms.com",
+            # phone="254712345679",
+            password=generate_password_hash("admin234"),
+            role="admin"
+            # is_active=False
+        ),
+        User(
+            username="MaryMG",
+            email="marymanager@oksms.com",
+            # phone="254712345680",
             password=generate_password_hash("manager123"),
-            role="manager",
-            is_active=True
+            role="manager"
+            # is_active=True
         ),
         User(
-            name="Staff Mary",
-            email="staff@oksms.com",
-            phone="254712345680",
-            password=generate_password_hash("staff123"),
-            role="staff",
-            is_active=True
+            username="AliceMG",
+            email="alicemanager@oksms.com",
+            # phone="254712345681",
+            password=generate_password_hash("manager234"),
+            role="manager"
+            # is_active=True
         ),
         User(
-            name="Tenant Alice",
-            email="alice@example.com",
-            phone="254712345681",
-            password=generate_password_hash("tenant123"),
-            role="tenant",
-            is_active=True
+            username="BobMG",
+            email="bobmanager@oksms.com",
+            # phone="254712345682",
+            password=generate_password_hash("manager345"),
+            role="manager"
+            # is_active=True
         ),
         User(
-            name="Tenant Bob",
-            email="bob@example.com",
-            phone="254712345682",
-            password=generate_password_hash("tenant123"),
-            role="tenant",
-            is_active=True
-        ),
-        User(
-            name="Tenant Charlie",
-            email="charlie@example.com",
-            phone="254712345683",
-            password=generate_password_hash("tenant123"),
-            role="tenant",
-            is_active=True
+            username="CharlieMG",
+            email="charliemanager@oksms.com",
+            # phone="254712345683",
+            password=generate_password_hash("manager456"),
+            role="manager"
+            # is_active=False
         ),
     ]
     
