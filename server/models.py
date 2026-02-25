@@ -96,7 +96,7 @@ class MonthlyCharge ( db.Model ) :
     month = db.Column ( db.String ( 20), nullable = False )
     year = db.Column ( db.Integer, nullable = False )
     charge_date = db.Column ( db.Date, nullable = False )
-    # other_charges = db.Column ( db.Numeric(10, 2), nullable = True, default = 0.0 )
+    total_amount = db.Column ( db.Numeric(10, 2), nullable = True, default = rent_amount + water_bill )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
 
     # Constraint to counter duplicate billing for the same month and year
@@ -143,4 +143,4 @@ class Notification ( db.Model ) :
     occupancy_id = db.Column ( db.Integer, db.ForeignKey ( "occupancies.id" ) )
     message = db.Column ( db.String ( 255 ) )
     sent_at = db.Column ( db.DateTime )
-    status = db.Column ( db.Enum ( "pending", "sent", "failed" ) )
+    status = db.Column ( db.Enum ( "pending", "sent", "failed", name = "notification_status" ) )
