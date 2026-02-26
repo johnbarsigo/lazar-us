@@ -264,6 +264,7 @@ def seed_payments(occupancies, users):
             mpesa_receipt="MPM0001",
             # paid_by_user_id=occupancies[0].tenant.user_id,
             payment_date=now - timedelta(days=45),
+            monthly_charge_id=occupancies[0].monthly_charges[0].id,  # Link to specific monthly charge
             status="completed"
         ),
         Payment(
