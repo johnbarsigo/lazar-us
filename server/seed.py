@@ -24,7 +24,9 @@ def seed_users():
             email="admin1@oksms.com",
             # phone="254712345678",
             password_hash=generate_password_hash("admin123"),
-            role="admin"
+            role="admin",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=True
         ),
         User(
@@ -32,7 +34,9 @@ def seed_users():
             email="admin2@oksms.com",
             # phone="254712345679",
             password_hash=generate_password_hash("admin234"),
-            role="admin"
+            role="admin",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=False
         ),
         User(
@@ -40,7 +44,9 @@ def seed_users():
             email="marymanager@oksms.com",
             # phone="254712345680",
             password_hash=generate_password_hash("manager123"),
-            role="manager"
+            role="manager",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=True
         ),
         User(
@@ -48,7 +54,9 @@ def seed_users():
             email="alicemanager@oksms.com",
             # phone="254712345681",
             password_hash=generate_password_hash("manager234"),
-            role="manager"
+            role="manager",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=True
         ),
         User(
@@ -56,7 +64,9 @@ def seed_users():
             email="bobmanager@oksms.com",
             # phone="254712345682",
             password_hash=generate_password_hash("manager345"),
-            role="manager"
+            role="manager",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=True
         ),
         User(
@@ -64,7 +74,9 @@ def seed_users():
             email="charliemanager@oksms.com",
             # phone="254712345683",
             password_hash=generate_password_hash("manager456"),
-            role="manager"
+            role="manager",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=False
         ),
     ]
@@ -180,28 +192,28 @@ def seed_occupancies(tenants, rooms, users):
         Occupancy(
             tenant_id=tenants[0].id,  # Maxwell
             room_id=rooms[2].id,  # Room 103
-            check_in_date=now - timedelta(days=90),
-            check_out_date=None,
+            start_date=now - timedelta(days=90),
+            end_date=None,
             agreed_rent=5000.00,
-            status="active",
+            # status="active",
             # created_by_user_id=users[1].id  # Manager
         ),
         Occupancy(
             tenant_id=tenants[1].id,  # Alonso
             room_id=rooms[4].id,  # Room 202
-            check_in_date=now - timedelta(days=60),
-            check_out_date=None,
+            start_date=now - timedelta(days=60),
+            end_date=None,
             agreed_rent=8000.00,
-            status="active",
+            # status="active",
             # created_by_user_id=users[1].id
         ),
         Occupancy(
             tenant_id=tenants[2].id,  # Lewis
             room_id=rooms[0].id,  # Room 101
-            check_in_date=now - timedelta(days=30),
-            check_out_date=None,
+            start_date=now - timedelta(days=30),
+            end_date=None,
             agreed_rent=5000.00,
-            status="active",
+            # status="active",
             # created_by_user_id=users[1].id
         ),
     ]
@@ -235,10 +247,11 @@ def seed_monthly_charges(occupancies):
                 occupancy_id=occupancy.id,
                 month=month,
                 year=year,
-                rent_amount=occupancy.monthly_rent,
+                rent_amount=occupancy.agreed_rent,
                 water_bill=500.00 if month_offset < 2 else 0,
-                damages_or_dues=0,
-                total_amount=occupancy.monthly_rent + (500.00 if month_offset < 2 else 0)
+                # damages_or_dues=0,
+                charge_date=datetime(year, month, 1),
+                total_amount=occupancy.agreed_rent + (500 if month_offset < 2 else 0)
             )
             monthly_charges.append(charge)
     
@@ -255,21 +268,22 @@ def seed_payments(occupancies, users):
     
     payments = [
         Payment(
-            occupancy_id=occupancies[0].id,  # 
+            # occupancy_id=occupancies[0].id,
             # =================== Currently using tenant_id but occupancy_id would be better. Revisit =====================
             tenant_id=occupancies[0].tenant_id,  # Maxwell
             amount=5000.00,
-            payment_method="mpesa",
+            method="mpesa",
             mpesa_receipt="MPM0001",
             # paid_by_user_id=occupancies[0].tenant.user_id,
             payment_date=now - timedelta(days=45),
+            monthly_charge_id=occupancies[0].monthly_charges[0].id,  # Link to specific monthly charge
             status="completed"
         ),
         Payment(
-            occupancy_id=occupancies[0].id,  # Maxwell
+            # occupancy_id=occupancies[0].id,  # Maxwell
             tenant_id=occupancies[0].tenant_id, # Maxwell
             amount=5500.00,
-            payment_method="bank",
+            method="bank",
             # transaction_id="BANK0001",
             # =================== Add transaction ID to database/ models ===================
             # paid_by_user_id=occupancies[0].tenant.user_id,
@@ -278,10 +292,10 @@ def seed_payments(occupancies, users):
             monthly_charge_id=occupancies[0].monthly_charges[1].id  # Link to specific monthly charge
         ),
         Payment(
-            occupancy_id=occupancies[1].id,  # Alonso
+            # occupancy_id=occupancies[1].id,  # Alonso
             tenant_id = occupancies[1].tenant_id, # Alonso
             amount=8000.00,
-            payment_method="mpesa",
+            method="mpesa",
             mpesa_receipt="MPM0002",
             # paid_by_user_id=occupancies[1].tenant.user_id,
             payment_date=now - timedelta(days=30),
@@ -289,10 +303,10 @@ def seed_payments(occupancies, users):
             monthly_charge_id=occupancies[1].monthly_charges[1].id
         ),
         Payment(
-            occupancy_id=occupancies[2].id,  # Lewis
+            # occupancy_id=occupancies[2].id,  # Lewis
             tenant_id=occupancies[2].tenant_id, # Lewis
             amount=5000.00,
-            payment_method="cash",
+            method="cash",
             # transaction_id="CASH0001",
             # paid_by_user_id=occupancies[2].tenant.user_id,
             payment_date=now - timedelta(days=5),
