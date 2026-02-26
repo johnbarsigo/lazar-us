@@ -24,7 +24,9 @@ def seed_users():
             email="admin1@oksms.com",
             # phone="254712345678",
             password_hash=generate_password_hash("admin123"),
-            role="admin"
+            role="admin",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=True
         ),
         User(
@@ -32,7 +34,9 @@ def seed_users():
             email="admin2@oksms.com",
             # phone="254712345679",
             password_hash=generate_password_hash("admin234"),
-            role="admin"
+            role="admin",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=False
         ),
         User(
@@ -40,7 +44,9 @@ def seed_users():
             email="marymanager@oksms.com",
             # phone="254712345680",
             password_hash=generate_password_hash("manager123"),
-            role="manager"
+            role="manager",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=True
         ),
         User(
@@ -48,7 +54,9 @@ def seed_users():
             email="alicemanager@oksms.com",
             # phone="254712345681",
             password_hash=generate_password_hash("manager234"),
-            role="manager"
+            role="manager",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=True
         ),
         User(
@@ -56,7 +64,9 @@ def seed_users():
             email="bobmanager@oksms.com",
             # phone="254712345682",
             password_hash=generate_password_hash("manager345"),
-            role="manager"
+            role="manager",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=True
         ),
         User(
@@ -64,7 +74,9 @@ def seed_users():
             email="charliemanager@oksms.com",
             # phone="254712345683",
             password_hash=generate_password_hash("manager456"),
-            role="manager"
+            role="manager",
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
             # is_active=False
         ),
     ]
