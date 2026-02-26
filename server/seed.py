@@ -238,6 +238,7 @@ def seed_monthly_charges(occupancies):
                 rent_amount=occupancy.agreed_rent,
                 water_bill=500.00 if month_offset < 2 else 0,
                 # damages_or_dues=0,
+                charge_date=datetime(year, month, 1),
                 total_amount=occupancy.agreed_rent + (500 if month_offset < 2 else 0)
             )
             monthly_charges.append(charge)
