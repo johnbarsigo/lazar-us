@@ -183,7 +183,7 @@ def seed_occupancies(tenants, rooms, users):
             start_date=now - timedelta(days=90),
             end_date=None,
             agreed_rent=5000.00,
-            status="active",
+            # status="active",
             # created_by_user_id=users[1].id  # Manager
         ),
         Occupancy(
@@ -192,7 +192,7 @@ def seed_occupancies(tenants, rooms, users):
             start_date=now - timedelta(days=60),
             end_date=None,
             agreed_rent=8000.00,
-            status="active",
+            # status="active",
             # created_by_user_id=users[1].id
         ),
         Occupancy(
@@ -201,7 +201,7 @@ def seed_occupancies(tenants, rooms, users):
             start_date=now - timedelta(days=30),
             end_date=None,
             agreed_rent=5000.00,
-            status="active",
+            # status="active",
             # created_by_user_id=users[1].id
         ),
     ]
@@ -235,10 +235,10 @@ def seed_monthly_charges(occupancies):
                 occupancy_id=occupancy.id,
                 month=month,
                 year=year,
-                rent_amount=occupancy.monthly_rent,
+                rent_amount=occupancy.agreed_rent,
                 water_bill=500.00 if month_offset < 2 else 0,
-                damages_or_dues=0,
-                total_amount=occupancy.monthly_rent + (500.00 if month_offset < 2 else 0)
+                # damages_or_dues=0,
+                total_amount=occupancy.agreed_rent + (500 if month_offset < 2 else 0)
             )
             monthly_charges.append(charge)
     
