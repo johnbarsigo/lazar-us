@@ -1,5 +1,5 @@
 
-from flask_jwt_extended import get_jwt, create_access_token, jwt_required as jwt_required_decorator
+from flask_jwt_extended import get_jwt, decode_token, create_access_token, jwt_required as jwt_required_decorator
 from datetime import datetime, timedelta
 from flask import current_app, g, jsonify
 from functools import wraps
@@ -10,7 +10,7 @@ from models import User
 # Generate JWT access token
 def generate_token ( user_id, user_role ) :
 
-    # Convert uiser_id to string for JWT encoding
+    # Convert user_id to string for JWT encoding
     user_id_string = str ( user_id ) if not isinstance ( user_id, str ) else user_id
 
     # Create JWT token with user role in claims.
@@ -29,8 +29,8 @@ def token_required ( f ) :
 
     # Combined decorator that verifies JWT token (@jwt_required) and loads the user from the database (@token_required). This allows us to access the current user in downstream decorators like @admin_required without needing to decode the token multiple times.
 
-    @jwt_required_decorator () # Verify JWT token.
     @wraps ( f )
+    @jwt_required_decorator () # Verify JWT token.
     def decorated ( *args, **kwargs ) :
 
         try :
@@ -54,6 +54,8 @@ def token_required ( f ) :
         
         except ValueError :
             return { "error" : "Invalid user ID token." }, 401
+        except JWTExtendedException as e :
+            return { "error" : f"JWT verification failed: { str(e) }" }, 401
         except Exception as e :
             return { "error" : f"Authentication failed: { str(e) }"}, 401
         
@@ -64,37 +66,37 @@ def token_required ( f ) :
 
 
 
-def verify_token_manually(token):
-    """
-    Manually verify and decode a token
+# def verify_token_manually(token):
+#     """
+#     Manually verify and decode a token
     
-    Use this for:
-    - M-Pesa callbacks (external requests)
-    - Background jobs
-    - Any context where flask-jwt-extended decorators don't work
+#     Use this for:
+#     - M-Pesa callbacks (external requests)
+#     - Background jobs
+#     - Any context where flask-jwt-extended decorators don't work
     
-    Args:
-        token (str): The JWT token to verify
+#     Args:
+#         token (str): The JWT token to verify
         
-    Returns:
-        tuple: (user_id, error_message) or (None, error_message) if invalid
+#     Returns:
+#         tuple: (user_id, error_message) or (None, error_message) if invalid
         
-    Example:
-        user_id, error = verify_token_manually(token)
-        if error:
-            return {"error": error}, 401
-    """
-    try:
-        payload = jwt_decode_token(token)
-        user_id_string = payload.get("sub")
+#     Example:
+#         user_id, error = verify_token_manually(token)
+#         if error:
+#             return {"error": error}, 401
+#     """
+#     try:
+#         payload = decode_token(token)
+#         user_id_string = payload.get("sub")
         
-        if not user_id_string :
-            return None, "Invalid token structure"
+#         if not user_id_string :
+#             return None, "Invalid token structure"
         
-        user_id = int( user_id_string )
+#         user_id = int( user_id_string )
         
-        return user_id, None
-    except ValueError :
-        return { "error" : "Invalid user ID token." }
-    except Exception as e:
-        return None, f"Token verification failed: {str(e)}"
+#         return user_id, None
+#     except ValueError :
+#         return { "error" : "Invalid user ID token." }
+#     except Exception as e:
+#         return None, f"Token verification failed: {str(e)}"

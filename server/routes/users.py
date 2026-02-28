@@ -1,5 +1,5 @@
 
-from flask import request, jsonify
+from flask import request, jsonify, g
 from models import db, User
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash # Remove password hashing from models.py and use werkzeug here for better integration with Flask
@@ -13,8 +13,8 @@ from auth.jwt import token_required, generate_token
 class UsersList ( Resource ) :
 
     # Admin required.
-    @token_required
     @admin_required
+    @token_required
     def get ( self ) :
         
         try :
@@ -122,7 +122,7 @@ class UserDetails ( Resource ) :
 
         try :
             # Authorization to allow user to view their own details or allow admin to view any user's details.
-            if g.current_user_id != user_id and g.current_user_role != "admin" :
+            if g.current_user_id != user_id and g.current_user.role != "admin" :
                 return { "error" : "Unauthorized access." }, 403
             
             user = User.query.get ( user_id )
