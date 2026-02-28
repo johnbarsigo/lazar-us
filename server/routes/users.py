@@ -1,5 +1,5 @@
 
-from flask import request, jsonify
+from flask import request, jsonify, g
 from models import db, User
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash # Remove password hashing from models.py and use werkzeug here for better integration with Flask
@@ -13,8 +13,8 @@ from auth.jwt import token_required, generate_token
 class UsersList ( Resource ) :
 
     # Admin required.
-    @token_required
     @admin_required
+    @token_required
     def get ( self ) :
         
         try :
@@ -25,10 +25,10 @@ class UsersList ( Resource ) :
                 "username" : user.username,
                 "email" : user.email,
                 "role" : user.role,
-                "created_at" : user.created_at.isoformat(),
-                "updated_at" : user.updated_at.isoformat()
+                "created_at" : str( user.created_at.isoformat() ) if user.created_at else None,
+                "updated_at" : str( user.updated_at.isoformat() ) if user.updated_at else None
             } for user in users ] )
-        
+
         except Exception as e :
             return { "error" : str (e) }, 500
 
@@ -96,7 +96,7 @@ class UserLogin ( Resource ) :
                 return { "error" : "Invalid username or password." }, 401
             
             # Generate JWT token
-            token = generate_token ( user.id, user.role )
+            token = generate_token ( str( user.id ), user.role )
 
             return {
                 "token" : token,
@@ -122,7 +122,7 @@ class UserDetails ( Resource ) :
 
         try :
             # Authorization to allow user to view their own details or allow admin to view any user's details.
-            if g.current_user_id != user_id and g.current_user_role != "admin" :
+            if g.current_user_id != user_id and g.current_user.role != "admin" :
                 return { "error" : "Unauthorized access." }, 403
             
             user = User.query.get ( user_id )
@@ -135,12 +135,12 @@ class UserDetails ( Resource ) :
                 "username" : user.username,
                 "email" : user.email,
                 "role" : user.role,
-                "created_at" : user.created_at.isoformat(),
-                "updated_at" : user.updated_at.isoformat()
+                "created_at" : str( user.created_at.isoformat() ) if user.created_at else None,
+                "updated_at" : str( user.updated_at.isoformat() ) if user.updated_at else None
             }
         
         except Exception as e :
-            return { "error" : str (e) }, 500
+            return { "error" : f"Failed to fetch user : { str (e) }" }, 500
     
 
     # Update user details (username, email, password).
@@ -213,4 +213,4 @@ class UserDetails ( Resource ) :
         
         except Exception as e :
             db.session.rollback ()
-            return { "error" : str (e) }, 500
+            return { "error" : f"Failed to delete user : { str (e) }" }, 500
