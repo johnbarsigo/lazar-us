@@ -1,8 +1,8 @@
 
 from flask import request
 from flask_restful import Resource
-from auth.permissions import admin_required, manager_required
-from auth.jwt import token_required
+# from auth.permissions import admin_required, manager_required
+# from auth.jwt import token_required
 from models import db, Tenant, Occupancy, Room
 from datetime import datetime
 
@@ -11,8 +11,8 @@ class TenantsList ( Resource ) :
 
     # Retrieve all tenants and details.
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self ) :
 
         tenants = Tenant.query.all()
@@ -37,8 +37,8 @@ class CreateTenantOccupancy ( Resource ) :
     # Creates a new occupancy for an existing tenant.
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def post ( self ) :
 
         try :
@@ -220,8 +220,8 @@ class TenantDetails ( Resource ) :
 
     # Retireve specific tenant and details.
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )
@@ -245,8 +245,8 @@ class TenantDetails ( Resource ) :
     # Update tenant details (name, email, phone, national_id). Work on how to update occupancy details if tenant details are updated. Maybe create a separate endpoint for updating occupancy details.
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def put ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )
@@ -269,8 +269,8 @@ class TenantDetails ( Resource ) :
     # Theory : Delete tenant, set occupancy end date to current date, delete all future billings. This way we maintain historical data for past occupancies and billings while ensuring that no future charges are generated for the deleted tenant.
 
     # Admin required.
-    @token_required
-    @admin_required
+    # @token_required
+    # @admin_required
     def delete ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )
@@ -289,8 +289,8 @@ class TenantDetails ( Resource ) :
 class TenantOccupancies ( Resource ) :
 
     # Admin required.
-    @token_required
-    @admin_required
+    # @token_required
+    # @admin_required
     def get ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )
@@ -314,8 +314,8 @@ class TenantOccupancies ( Resource ) :
 class TenantLedger ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self, tenant_id ) :
 
         tenant = Tenant.query.get ( tenant_id )

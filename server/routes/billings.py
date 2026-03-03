@@ -1,8 +1,9 @@
 
 from flask import request, jsonify
 from flask_restful import Resource
-from auth.permissions import admin_required, manager_required
-from auth.jwt import token_required
+# from auth.permissions import admin_required, manager_required
+# from auth.jwt import token_required
+from auth.permissions import require_admin, require_manager
 from models import db, MonthlyCharge, Occupancy
 from datetime import date
 
@@ -10,9 +11,14 @@ from datetime import date
 class GenerateMonthlyBillings ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def post ( self ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         data = request.get_json()
 
@@ -54,9 +60,14 @@ class GenerateMonthlyBillings ( Resource ) :
 class BillingsList ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         billings = MonthlyCharge.query.all()
 
@@ -74,8 +85,8 @@ class BillingsList ( Resource ) :
 class BillingDetails ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self, billing_id ) :
 
         billing = MonthlyCharge.query.get ( billing_id )

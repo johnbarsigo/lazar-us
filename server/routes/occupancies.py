@@ -1,8 +1,8 @@
 
 from flask import request
 from flask_restful import Resource
-from auth.permissions import admin_required, manager_required
-from auth.jwt import token_required
+# from auth.permissions import admin_required, manager_required
+# from auth.jwt import token_required
 from models import db, Occupancy, Tenant, Room
 
 
@@ -10,8 +10,8 @@ from models import db, Occupancy, Tenant, Room
 class Occupancies ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self ) :
 
         occupancies = Occupancy.query.all()
@@ -31,8 +31,8 @@ class Occupancies ( Resource ) :
 class OccupancyDetails ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self, occupancy_id ) :
 
         occupancy = Occupancy.query.get ( occupancy_id )
@@ -54,8 +54,8 @@ class OccupancyDetails ( Resource ) :
 
     # We can also add an endpoint to update the occupancy details. This will allow us to update the rent amount, water bill and other charges for an existing occupancy. This will be useful when we want to make adjustments to the charges for a tenant's occupancy.
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def put ( self, occupancy_id ) :
 
         occupancy = Occupancy.query.get ( occupancy_id )
@@ -85,8 +85,8 @@ class OccupancyDetails ( Resource ) :
     
     # We can also add an endpoint to delete an occupancy. This will allow us to remove an occupancy record when a tenant moves out or when we want to clear up old records. For now, we will just delete the occupancy and keep the associated charges and payments.
     # Admin required.
-    @token_required
-    @admin_required
+    # @token_required
+    # @admin_required
     def delete ( self, occupancy_id ) :
 
         occupancy = Occupancy.query.get ( occupancy_id )
