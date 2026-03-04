@@ -56,13 +56,14 @@ class RecordPayment ( Resource ) :
             monthly_charge_id = charge.id,
             amount = data [ "amount" ],
             method = data [ "method" ],
-            payment_date = datetime.strptime ( data [ "payment_date" ], "%Y-%m-%d" )
+            # payment_date = datetime.strptime ( data [ "payment_date" ], "%Y-%m-%d" )
+            payment_date = datetime.utcnow() if not data.get ( "payment_date" ) else datetime.strptime ( data [ "payment_date" ], "%Y-%m-%d" )
         )
 
         db.session.add ( payment )
         db.session.commit ()
 
-        return { "message" : "Payment recorded." }, 201
+        return { "message" : f"Payment for tenant id { charge.occupancy.tenant_id }, { charge.occupancy.tenant.name } recorded." }, 201
 
 
 class PaymentDetails ( Resource ) :

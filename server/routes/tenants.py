@@ -369,14 +369,21 @@ class TenantLedger ( Resource ) :
 
             for c in charges :
                 ledger.append ( {
+                    "occupancy_id" : o.id,
+                    "tenant_name" : tenant.name,
                     "type" : "charge",
+                    "monthly_charge_id" : c.id,
                     "amount" : int (c.rent_amount + c.water_bill),
                     "date" : str (c.charge_date)
                 } )
             
             for p in payments :
                 ledger.append ( {
+                    "occupancy_id" : o.id,
+                    "tenant_name" : tenant.name,
                     "type" : "payment",
+                    "payment_id" : p.id,
+                    "monthly_charge_id" : p.monthly_charge_id,
                     "amount" : int (p.amount),
                     "date" : str (p.payment_date)
                 } )
@@ -392,7 +399,7 @@ class TenantLedger ( Resource ) :
 
             if entry [ "type" ] == "charge" :
                 balance += entry [ "amount" ]
-                
+
             elif entry [ "type" ] == "payment" :
                 balance -= entry [ "amount" ]
             
