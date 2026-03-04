@@ -76,8 +76,8 @@ class BillingsList ( Resource ) :
             "occupancy_id" : b.occupancy_id,
             "month" : b.month,
             "year" : b.year,
-            "rent_amount" : b.rent_amount,
-            "water_bill" : b.water_bill
+            "rent_amount" : int (b.rent_amount),
+            "water_bill" : int (b.water_bill)
         } for b in billings ], 200
 
 
@@ -104,9 +104,9 @@ class BillingDetails ( Resource ) :
             "occupancy_id" : billing.occupancy_id,
             "month" : billing.month,
             "year" : billing.year,
-            "rent_amount" : billing.rent_amount,
-            "water_bill" : billing.water_bill,
+            "rent_amount" : int (billing.rent_amount),
+            "water_bill" : int (billing.water_bill),
             # "other_charges" : billing.other_charges,
-            "charge_date" : billing.charge_date.isoformat(),
-            "created_at" : billing.created_at.isoformat()
+            "charge_date" : str (billing.charge_date.isoformat()),
+            "created_at" : str (billing.created_at.isoformat())
         }, 200
