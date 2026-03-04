@@ -110,3 +110,44 @@ class BillingDetails ( Resource ) :
             "charge_date" : str (billing.charge_date.isoformat()),
             "created_at" : str (billing.created_at.isoformat())
         }, 200
+    
+
+    def put ( self, billing_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
+
+        billing = MonthlyCharge.query.get ( billing_id )
+
+        if not billing :
+            return { "error" : "Billing record not found." }, 404
+        
+        data = request.get_json()
+
+        billing.rent_amount = data.get ( "rent_amount", billing.rent_amount )
+        billing.water_bill = data.get ( "water_bill", billing.water_bill )
+        # billing.other_charges = data.get ( "other_charges", billing.other_charges )
+
+        db.session.commit ()
+
+        return { "message" : "Billing record updated successfully." }, 200
+    
+
+    def delete ( self, billing_id ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Admin access required." }, 403
+        
+        billing = MonthlyCharge.query.get ( billing_id )
+
+        if not billing :
+            return { "error" : "Billing record not found." }, 404
+
+        db.session.delete ( billing )
+        db.session.commit ()
+
+        return { "message" : "Billing record deleted successfully." }, 200
