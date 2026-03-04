@@ -77,7 +77,7 @@ class Occupancy ( db.Model ) :
     check_out_notes = db.Column ( db.String (255), nullable = True )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
     # Add updated_at to track when occupancy details are modified (e.g., rent changes, early termination).
-    # updated_at = db.Column ( db.DateTime, default = datetime.utcnow, onupdate = datetime.utcnow )
+    updated_at = db.Column ( db.DateTime, default = datetime.utcnow, onupdate = datetime.utcnow )
 
     # Relationships
     tenant = db.relationship ( "Tenant", backref = "occupancies" )
