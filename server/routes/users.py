@@ -135,8 +135,17 @@ class UserDetails ( Resource ) :
     def get ( self, user_id ) :
 
         try :
-            # Authorization to allow user to view their own details or allow admin to view any user's details.
-            if g.current_user_id != user_id and g.current_user.role != "admin" :
+            # # Authorization to allow user to view their own details or allow admin to view any user's details.
+            # if g.current_user_id != user_id and g.current_user.role != "admin" :
+            #     return { "error" : "Unauthorized access." }, 403
+
+            # Authorization to allow admin or logged in user to view their own details.
+            manager = require_manager ()
+
+            if not manager :
+                return { "error" : "Unauthorized. Manager access required." }, 403
+
+            if manager.id != user_id and manager.role != "admin" :
                 return { "error" : "Unauthorized access." }, 403
             
             user = User.query.get ( user_id )
@@ -227,7 +236,8 @@ class UserDetails ( Resource ) :
                 return { "error" : "User not found." }, 404
             
             # Prevent admin from deleting their own account to avoid accidental lockout.
-            if user.id == g.current_user_id :
+            # if user.id == g.current_user_id :
+            if user.id == admin.id :
                 return { "error" : "Cannot delete your own account." }, 400
             
             db.session.delete ( user )
