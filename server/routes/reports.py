@@ -35,7 +35,9 @@ class GenerateArrearsReport ( Resource ) :
         for r in results :
             balance = float ( r.total_billed) - float ( r.total_paid )
 
-            if balance > 0 :
+            # Negative balance means tenant has overpaid, so we can include all tenants with non-zero balance to show both those in arrears and those with credit.
+
+            if balance != 0 :
                 report.append ( {
                     "tenant_id" : r.id,
                     "name" : r.name,
