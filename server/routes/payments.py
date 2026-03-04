@@ -3,6 +3,7 @@ from flask import request, jsonify
 from flask_restful import Resource
 # from auth.permissions import admin_required, manager_required
 # from auth.jwt import token_required
+from auth.permissions import require_admin, require_manager
 from models import db, Payment, MonthlyCharge
 from datetime import datetime
 
@@ -14,15 +15,20 @@ class PaymentsList ( Resource ) :
     # @manager_required
     def get ( self ) :
 
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
+
         payments = Payment.query.all()
 
         return [ {
             "id" : p.id,
             "tenant_id" : p.tenant_id,
             "monthly_charge_id" : p.monthly_charge_id,
-            "amount" : p.amount,
-            "method" : p.method,
-            "payment_date" : p.payment_date
+            "amount" : int (p.amount),
+            "method" : p.method if p.method else None,
+            "payment_date" : str (p.payment_date)
         } for p in payments ], 200
 
 
@@ -32,6 +38,11 @@ class RecordPayment ( Resource ) :
     # @token_required
     # @manager_required
     def post ( self ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         data = request.get_json ()
 
@@ -70,8 +81,8 @@ class PaymentDetails ( Resource ) :
             "id" : payment.id,
             "tenant_id" : payment.tenant_id,
             "monthly_charge_id" : payment.monthly_charge_id,
-            "amount" : payment.amount,
-            "method" : payment.method,
-            "payment_date" : payment.payment_date.isoformat(),
-            "created_at" : payment.created_at.isoformat()
+            "amount" : int (payment.amount),
+            "method" : payment.method if payment.method else None,
+            "payment_date" : str (payment.payment_date.isoformat()),
+            "created_at" : str (payment.created_at.isoformat())
         }
