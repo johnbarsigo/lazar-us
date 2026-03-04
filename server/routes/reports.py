@@ -3,6 +3,7 @@ from flask import request, jsonify
 from flask_restful import Resource
 # from auth.permissions import admin_required, manager_required
 # from auth.jwt import token_required
+from auth.permissions import require_admin, require_manager
 from models import db, Tenant, Occupancy, MonthlyCharge, Payment
 from sqlalchemy import func
 
@@ -13,6 +14,11 @@ class GenerateArrearsReport ( Resource ) :
     # @token_required
     # @manager_required
     def get ( self ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         results = db.session.query (
             Tenant.id,

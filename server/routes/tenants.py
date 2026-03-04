@@ -35,7 +35,7 @@ class TenantsList ( Resource ) :
         } for t in tenants ], 200
 
 
-# Work on how to create occupancy after creating tenant. Maybe create occupancy in the same request as tenant creation.
+# Create occupancy in the same request as tenant creation.
 class CreateTenantOccupancy ( Resource ) :
 
     # Endpoint : POST /api/tenants/check-in
@@ -48,6 +48,11 @@ class CreateTenantOccupancy ( Resource ) :
     # @token_required
     # @manager_required
     def post ( self ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         try :
 
@@ -314,10 +319,15 @@ class TenantDetails ( Resource ) :
 # Retrieves a tenant's list of occupancies. This will allow us to show the tenant's current and past occupancies when we retrieve their details.
 class TenantOccupancies ( Resource ) :
 
-    # Admin required.
+    # Manager required.
     # @token_required
-    # @admin_required
+    # @manager_required
     def get ( self, tenant_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         tenant = Tenant.query.get ( tenant_id )
 
