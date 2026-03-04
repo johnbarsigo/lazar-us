@@ -71,7 +71,7 @@ def require_manager() :
 
     user = get_current_user ()
 
-    if not isinstance ( user, User ) or user.role != "manager" :
+    if not isinstance ( user, User ) or user.role not in [ "manager", "admin" ] :
         return None
     
     return user

@@ -89,6 +89,11 @@ class BillingDetails ( Resource ) :
     # @manager_required
     def get ( self, billing_id ) :
 
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
+
         billing = MonthlyCharge.query.get ( billing_id )
 
         if not billing :
