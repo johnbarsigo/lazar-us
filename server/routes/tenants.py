@@ -1,8 +1,9 @@
 
 from flask import request
 from flask_restful import Resource
-from auth.permissions import admin_required, manager_required
-from auth.jwt import token_required
+# from auth.permissions import admin_required, manager_required
+# from auth.jwt import token_required
+from auth.permissions import require_admin, require_manager
 from models import db, Tenant, Occupancy, Room
 from datetime import datetime
 
@@ -11,9 +12,14 @@ class TenantsList ( Resource ) :
 
     # Retrieve all tenants and details.
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         tenants = Tenant.query.all()
 
@@ -23,11 +29,13 @@ class TenantsList ( Resource ) :
             "email" : t.email,
             "phone number" : t.phone,
             "national_id" : t.national_id,
-            "created_at" : t.created_at
+            "room_number" : t.occupancies [ -1 ].room.room_number if t.occupancies else None, # Get the room number of the most recent occupancy if it exists, otherwise return None. Occupancies are ordered by start_date, so the most recent occupancy will be the last one in the list. [-1] takes the last element of the list.
+            "occupancy_start_date" : str (t.occupancies [ -1 ].start_date) if t.occupancies else None,
+            "created_at" : str (t.created_at)
         } for t in tenants ], 200
 
 
-# Work on how to create occupancy after creating tenant. Maybe create occupancy in the same request as tenant creation.
+# Create occupancy in the same request as tenant creation.
 class CreateTenantOccupancy ( Resource ) :
 
     # Endpoint : POST /api/tenants/check-in
@@ -37,9 +45,14 @@ class CreateTenantOccupancy ( Resource ) :
     # Creates a new occupancy for an existing tenant.
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def post ( self ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         try :
 
@@ -220,9 +233,14 @@ class TenantDetails ( Resource ) :
 
     # Retireve specific tenant and details.
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self, tenant_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         tenant = Tenant.query.get ( tenant_id )
 
@@ -239,15 +257,23 @@ class TenantDetails ( Resource ) :
             "phone number" : tenant.phone,
             "national_id" : tenant.national_id,
             "room_id" : occupancies [ -1 ].room_id if occupancies else None, # Get the room_id of the most recent occupancy if it exists, otherwise return None. Occupancies are ordered by start_date, so the most recent occupancy will be the last one in the list. [-1] takes the last element of the list.
-            "created_at" : tenant.created_at
+            "room_number" : tenant.occupancies [ -1 ].room.room_number if tenant.occupancies else None, # Get the room number of the most recent occupancy if it exists, otherwise return None. Occupancies are ordered by start_date, so the most recent occupancy will be the last one in the list. [-1] takes the last element of the list.
+            "occupancy_start_date" : str (tenant.occupancies [ -1 ].start_date) if tenant.occupancies else None,
+
+            "created_at" : str (tenant.created_at)
         }, 200
 
     # Update tenant details (name, email, phone, national_id). Work on how to update occupancy details if tenant details are updated. Maybe create a separate endpoint for updating occupancy details.
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def put ( self, tenant_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         tenant = Tenant.query.get ( tenant_id )
 
@@ -269,9 +295,14 @@ class TenantDetails ( Resource ) :
     # Theory : Delete tenant, set occupancy end date to current date, delete all future billings. This way we maintain historical data for past occupancies and billings while ensuring that no future charges are generated for the deleted tenant.
 
     # Admin required.
-    @token_required
-    @admin_required
+    # @token_required
+    # @admin_required
     def delete ( self, tenant_id ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Admin access required." }, 403
 
         tenant = Tenant.query.get ( tenant_id )
 
@@ -288,10 +319,15 @@ class TenantDetails ( Resource ) :
 # Retrieves a tenant's list of occupancies. This will allow us to show the tenant's current and past occupancies when we retrieve their details.
 class TenantOccupancies ( Resource ) :
 
-    # Admin required.
-    @token_required
-    @admin_required
+    # Manager required.
+    # @token_required
+    # @manager_required
     def get ( self, tenant_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         tenant = Tenant.query.get ( tenant_id )
 
@@ -303,9 +339,14 @@ class TenantOccupancies ( Resource ) :
         return [ {
             "id" : o.id,
             "room_id" : o.room_id,
-            "agreed_rent" : o.agreed_rent,
-            "start_date" : o.start_date,
-            "end_date" : o.end_date
+            "room_number" : o.room.room_number,
+            "agreed_rent" : int (o.agreed_rent),
+            "start_date" : str (o.start_date),
+            "end_date" : str (o.end_date) if o.end_date else None,
+            "damages_or_dues" : int (o.damages_or_dues) if o.damages_or_dues else 0,
+            "damages_reason" : o.damages_reason if o.damages_reason else None,
+            "check_in_notes" : o.check_in_notes if o.check_in_notes else None,
+            "check_out_notes" : o.check_out_notes if o.check_out_notes else None,
         } for o in occupancies ], 200
     
 
@@ -314,9 +355,14 @@ class TenantOccupancies ( Resource ) :
 class TenantLedger ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self, tenant_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         tenant = Tenant.query.get ( tenant_id )
 
@@ -333,19 +379,40 @@ class TenantLedger ( Resource ) :
 
             for c in charges :
                 ledger.append ( {
+                    "occupancy_id" : o.id,
+                    "tenant_name" : tenant.name,
                     "type" : "charge",
-                    "amount" : c.rent_amount + c.water_bill,
-                    "date" : c.charge_date
+                    "monthly_charge_id" : c.id,
+                    "amount" : int (c.rent_amount + c.water_bill),
+                    "date" : str (c.charge_date)
                 } )
             
             for p in payments :
                 ledger.append ( {
+                    "occupancy_id" : o.id,
+                    "tenant_name" : tenant.name,
                     "type" : "payment",
-                    "amount" : p.amount,
-                    "date" : p.payment_date
+                    "payment_id" : p.id,
+                    "monthly_charge_id" : p.monthly_charge_id,
+                    "amount" : int (p.amount),
+                    "date" : str (p.payment_date)
                 } )
         
         # Sort the ledger by date.
         ledger.sort ( key = lambda x : x [ "date" ] )
+
+        # Get the difference of charges and payments to calculate the running balance.
+        balance = 0
+        for entry in ledger :
+
+            # Add charges to balance and subtract payments from balance.
+
+            if entry [ "type" ] == "charge" :
+                balance += entry [ "amount" ]
+
+            elif entry [ "type" ] == "payment" :
+                balance -= entry [ "amount" ]
+            
+            entry [ "running_balance" ] = balance
 
         return ledger, 200

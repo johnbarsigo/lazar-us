@@ -51,31 +51,38 @@ def create_app ( ) :
     api = Api ( app )
 
     # Register API resources
+    # USERS
     api.add_resource ( UsersList, "/api/users" )
     api.add_resource ( CreateUser, "/api/users/create" )
     api.add_resource ( UserLogin, "/api/users/login" )
     api.add_resource ( UserDetails, "/api/users/<int:user_id>" )
 
+    # ROOMS
     api.add_resource ( RoomsList, "/api/rooms" )
     api.add_resource ( RoomDetails, "/api/rooms/<int:room_id>" )
 
-    api.add_resource ( CreateTenantOccupancy, "/api/tenants/check-in" ) # Handles both new tenant-occupancy instances (NEW TENANT) and new occupancies for existing tenants (ROOM SWITCH).
+    # TENANTS
     api.add_resource ( TenantsList, "/api/tenants" )
     api.add_resource ( TenantDetails, "/api/tenants/<int:tenant_id>")
-    api.add_resource ( TenantLedger, "/api/tenants/<int:tenant_id>/ledger" )
+    api.add_resource ( CreateTenantOccupancy, "/api/tenants/check-in" ) # Handles both new tenant-occupancy instances (NEW TENANT) and new occupancies for existing tenants (ROOM SWITCH).
     api.add_resource ( TenantOccupancies, "/api/tenants/<int:tenant_id>/occupancies" )
+    api.add_resource ( TenantLedger, "/api/tenants/<int:tenant_id>/ledger" )
 
+    # OCCUPANCIES
     api.add_resource ( Occupancies, "/api/occupancies" )
     api.add_resource ( OccupancyDetails, "/api/occupancies/<int:occupancy_id>" )
 
+    # BILLINGS
     api.add_resource ( GenerateMonthlyBillings, "/api/billings/generate" )
     api.add_resource ( BillingsList, "/api/billings" )
     api.add_resource ( BillingDetails, "/api/billings/<int:billing_id>" )
 
+    # PAYMENTS
     api.add_resource ( PaymentsList, "/api/payments" )
     api.add_resource ( RecordPayment, "/api/payments/record" )
     api.add_resource ( PaymentDetails, "/api/payments/<int:payment_id>" )
 
+    # REPORTS
     api.add_resource ( GenerateArrearsReport, "/api/reports/arrears" )
    
 

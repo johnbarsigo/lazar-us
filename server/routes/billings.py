@@ -1,8 +1,9 @@
 
 from flask import request, jsonify
 from flask_restful import Resource
-from auth.permissions import admin_required, manager_required
-from auth.jwt import token_required
+# from auth.permissions import admin_required, manager_required
+# from auth.jwt import token_required
+from auth.permissions import require_admin, require_manager
 from models import db, MonthlyCharge, Occupancy
 from datetime import date
 
@@ -10,9 +11,14 @@ from datetime import date
 class GenerateMonthlyBillings ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def post ( self ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         data = request.get_json()
 
@@ -54,9 +60,14 @@ class GenerateMonthlyBillings ( Resource ) :
 class BillingsList ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         billings = MonthlyCharge.query.all()
 
@@ -65,8 +76,8 @@ class BillingsList ( Resource ) :
             "occupancy_id" : b.occupancy_id,
             "month" : b.month,
             "year" : b.year,
-            "rent_amount" : b.rent_amount,
-            "water_bill" : b.water_bill
+            "rent_amount" : int (b.rent_amount),
+            "water_bill" : int (b.water_bill)
         } for b in billings ], 200
 
 
@@ -74,9 +85,14 @@ class BillingsList ( Resource ) :
 class BillingDetails ( Resource ) :
 
     # Admin/ Manager required.
-    @token_required
-    @manager_required
+    # @token_required
+    # @manager_required
     def get ( self, billing_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
 
         billing = MonthlyCharge.query.get ( billing_id )
 
@@ -88,9 +104,50 @@ class BillingDetails ( Resource ) :
             "occupancy_id" : billing.occupancy_id,
             "month" : billing.month,
             "year" : billing.year,
-            "rent_amount" : billing.rent_amount,
-            "water_bill" : billing.water_bill,
+            "rent_amount" : int (billing.rent_amount),
+            "water_bill" : int (billing.water_bill),
             # "other_charges" : billing.other_charges,
-            "charge_date" : billing.charge_date.isoformat(),
-            "created_at" : billing.created_at.isoformat()
+            "charge_date" : str (billing.charge_date.isoformat()),
+            "created_at" : str (billing.created_at.isoformat())
         }, 200
+    
+
+    def put ( self, billing_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
+
+        billing = MonthlyCharge.query.get ( billing_id )
+
+        if not billing :
+            return { "error" : "Billing record not found." }, 404
+        
+        data = request.get_json()
+
+        billing.rent_amount = data.get ( "rent_amount", billing.rent_amount )
+        billing.water_bill = data.get ( "water_bill", billing.water_bill )
+        # billing.other_charges = data.get ( "other_charges", billing.other_charges )
+
+        db.session.commit ()
+
+        return { "message" : "Billing record updated successfully." }, 200
+    
+
+    def delete ( self, billing_id ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Admin access required." }, 403
+        
+        billing = MonthlyCharge.query.get ( billing_id )
+
+        if not billing :
+            return { "error" : "Billing record not found." }, 404
+
+        db.session.delete ( billing )
+        db.session.commit ()
+
+        return { "message" : "Billing record deleted successfully." }, 200

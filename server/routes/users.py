@@ -3,8 +3,10 @@ from flask import request, jsonify, g
 from models import db, User
 from flask_restful import Resource
 from werkzeug.security import generate_password_hash, check_password_hash # Remove password hashing from models.py and use werkzeug here for better integration with Flask
-from auth.permissions import admin_required, manager_required
-from auth.jwt import token_required, generate_token
+# from auth.permissions import admin_required, manager_required
+from auth.permissions import require_admin, require_manager
+from auth.jwt import generate_token
+# from auth.jwt import token_required, generate_token, jwt_required
 
 # NOTE : password_hash is the column name in the User model.
 
@@ -13,9 +15,16 @@ from auth.jwt import token_required, generate_token
 class UsersList ( Resource ) :
 
     # Admin required.
-    @admin_required
-    @token_required
+    # @jwt_required
+    # @admin_required
+    # @token_required
+    
     def get ( self ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Admin access required." }, 403
         
         try :
             users = User.query.all ()
@@ -38,9 +47,14 @@ class CreateUser ( Resource ) :
 
     # Create new user
     # Admin required
-    @token_required
-    @admin_required
+    # @token_required
+    # @admin_required
     def post ( self ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Admin access required." }, 403
 
         try :
 
@@ -96,7 +110,7 @@ class UserLogin ( Resource ) :
                 return { "error" : "Invalid username or password." }, 401
             
             # Generate JWT token
-            token = generate_token ( str( user.id ), user.role )
+            token = generate_token ( str( user.id ), "admin" if user.role == "admin" else "manager" )
 
             return {
                 "token" : token,
@@ -117,12 +131,21 @@ class UserLogin ( Resource ) :
 class UserDetails ( Resource ) :
 
     # Show logged in User details.
-    @token_required
+    # @token_required
     def get ( self, user_id ) :
 
         try :
-            # Authorization to allow user to view their own details or allow admin to view any user's details.
-            if g.current_user_id != user_id and g.current_user.role != "admin" :
+            # # Authorization to allow user to view their own details or allow admin to view any user's details.
+            # if g.current_user_id != user_id and g.current_user.role != "admin" :
+            #     return { "error" : "Unauthorized access." }, 403
+
+            # Authorization to allow admin or logged in user to view their own details.
+            manager = require_manager ()
+
+            if not manager :
+                return { "error" : "Unauthorized. Manager access required." }, 403
+
+            if manager.id != user_id and manager.role != "admin" :
                 return { "error" : "Unauthorized access." }, 403
             
             user = User.query.get ( user_id )
@@ -145,9 +168,14 @@ class UserDetails ( Resource ) :
 
     # Update user details (username, email, password).
     # Admin required
-    @token_required
-    @admin_required
+    # @token_required
+    # @admin_required
     def put ( self, user_id ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Admin access required." }, 403
 
         try :
 
@@ -191,9 +219,14 @@ class UserDetails ( Resource ) :
 
     # Delete user account.
     # Admin required.
-    @token_required
-    @admin_required
+    # @token_required
+    # @admin_required
     def delete ( self, user_id ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Admin access required." }, 403
 
         try :
 
@@ -203,7 +236,8 @@ class UserDetails ( Resource ) :
                 return { "error" : "User not found." }, 404
             
             # Prevent admin from deleting their own account to avoid accidental lockout.
-            if user.id == g.current_user_id :
+            # if user.id == g.current_user_id :
+            if user.id == admin.id :
                 return { "error" : "Cannot delete your own account." }, 400
             
             db.session.delete ( user )
