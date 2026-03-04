@@ -69,16 +69,22 @@ class OccupancyDetails ( Resource ) :
     # @manager_required
     def put ( self, occupancy_id ) :
 
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
+
         occupancy = Occupancy.query.get ( occupancy_id )
+        monthly_charge = MonthlyCharge.query.filter_by ( occupancy_id = occupancy_id ).first()
 
         if not occupancy :
             return { "error" : "Occupancy not found." }, 404
         
         data = request.get_json ()
 
-        occupancy.rent_amount = data.get ( "rent_amount", occupancy.rent_amount )
-        occupancy.water_bill = data.get ( "water_bill", occupancy.water_bill )
-        occupancy.other_charges = data.get ( "other_charges", occupancy.other_charges )
+        occupancy.agreed_rent = data.get ( "rent_amount", occupancy.agreed_rent )
+        monthly_charge.water_bill = data.get ( "water_bill", monthly_charge.water_bill )
+
         db.session.commit ()
         return {
             "message" : "Occupancy details updated successfully.",
@@ -86,11 +92,12 @@ class OccupancyDetails ( Resource ) :
                 "id" : occupancy.id,
                 "tenant_id" : occupancy.tenant_id,
                 "room_id" : occupancy.room_id,
-                "rent_amount" : occupancy.rent_amount,
-                "water_bill" : occupancy.water_bill,
-                "other_charges" : occupancy.other_charges,
-                "total_amount" : occupancy.rent_amount + occupancy.water_bill + occupancy.other_charges,
-                "charge_date" : occupancy.charge_date
+                "room_number" : occupancy.room.room_number,
+                "rent_amount" : int (occupancy.agreed_rent),
+                "water_bill" : int (monthly_charge.water_bill) if monthly_charge else 0,
+                "total_amount" : int (occupancy.agreed_rent + (monthly_charge.water_bill if monthly_charge else 0)),
+                "charge_date" : str (monthly_charge.charge_date.isoformat()) if monthly_charge else None,
+                "updated_at" : str (datetime.utcnow().isoformat())
             }
         }, 200
     
@@ -99,6 +106,11 @@ class OccupancyDetails ( Resource ) :
     # @token_required
     # @admin_required
     def delete ( self, occupancy_id ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Admin access required." }, 403
 
         occupancy = Occupancy.query.get ( occupancy_id )
 
@@ -110,54 +122,3 @@ class OccupancyDetails ( Resource ) :
         return { "message" : "Occupancy deleted successfully." }, 200
     
 
-# class CreateOccupancy ( Resource ) :
-
-#     # Admin/ Manager required.
-#     @token_required
-#     @manager_required
-#     def post ( self ) :
-
-#         data = request.get_json ()
-
-#         tenant_id = data.get ( "tenant_id" )
-#         room_id = data.get ( "room_id" )
-#         rent_amount = data.get ( "rent_amount" )
-#         water_bill = data.get ( "water_bill" )
-#         other_charges = data.get ( "other_charges", 0.0 )
-#         charge_date = data.get ( "charge_date" )
-
-#         tenant = Tenant.query.get ( tenant_id )
-
-#         if not tenant :
-#             return { "error" : "Tenant not found." }, 404
-        
-#         room = Room.query.get ( room_id )
-
-#         if not room :
-#             return { "error" : "Room not found." }, 404
-        
-#         occupancy = Occupancy (
-#             tenant_id = tenant_id,
-#             room_id = room_id,
-#             rent_amount = rent_amount,
-#             water_bill = water_bill,
-#             other_charges = other_charges,
-#             charge_date = charge_date
-#         )
-
-#         db.session.add ( occupancy )
-#         db.session.commit ()
-
-#         return {
-#             "message" : "Occupancy created successfully.",
-#             "occupancy" : {
-#                 "id" : occupancy.id,
-#                 "tenant_id" : occupancy.tenant_id,
-#                 "room_id" : occupancy.room_id,
-#                 "rent_amount" : occupancy.rent_amount,
-#                 "water_bill" : occupancy.water_bill,
-#                 "other_charges" : occupancy.other_charges,
-#                 "total_amount" : occupancy.rent_amount + occupancy.water_bill + occupancy.other_charges,
-#                 "charge_date" : occupancy.charge_date
-#             }
-#         }, 201
