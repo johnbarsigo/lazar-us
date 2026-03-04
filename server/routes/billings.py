@@ -134,11 +134,11 @@ class BillingDetails ( Resource ) :
 
         billing.rent_amount = data.get ( "rent_amount", billing.rent_amount )
         billing.water_bill = data.get ( "water_bill", billing.water_bill )
-        # billing.other_charges = data.get ( "other_charges", billing.other_charges )
+        billing.updated_at = datetime.utcnow()
 
         db.session.commit ()
 
-        return { "message" : "Billing record updated successfully." }, 200
+        return { "message" : f"Billing record updated at {billing.updated_at} successfully." }, 200
     
 
     def delete ( self, billing_id ) :

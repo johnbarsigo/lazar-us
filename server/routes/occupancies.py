@@ -10,6 +10,7 @@ from datetime import datetime
 
 # Retrieve a list of all occupancies and details.
 class Occupancies ( Resource ) :
+    # /api/occupancies
 
     # Admin/ Manager required.
     # @token_required
@@ -36,6 +37,7 @@ class Occupancies ( Resource ) :
 
 
 class OccupancyDetails ( Resource ) :
+    # /api/occupancies/<int:occupancy_id>
 
     # Admin/ Manager required.
     # @token_required
@@ -59,7 +61,8 @@ class OccupancyDetails ( Resource ) :
             "water_bill" : int (monthly_charge.water_bill) if monthly_charge and monthly_charge.water_bill else 0,
             "total_amount" : int (occupancy.agreed_rent + (monthly_charge.water_bill if monthly_charge else 0)),
             "charge_date" : str (monthly_charge.charge_date.isoformat()) if monthly_charge else None,
-            "created_at" : str (occupancy.created_at.isoformat())
+            "created_at" : str (occupancy.created_at.isoformat()),
+            "updated_at" : str (occupancy.updated_at.isoformat()) if occupancy.updated_at else None
         }, 200
     
 

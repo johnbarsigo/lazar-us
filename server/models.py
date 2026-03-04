@@ -100,6 +100,7 @@ class MonthlyCharge ( db.Model ) :
     charge_date = db.Column ( db.Date, nullable = False )
     total_amount = db.Column ( db.Numeric(10, 2), nullable = True, default = rent_amount + water_bill )
     created_at = db.Column ( db.DateTime, default = datetime.utcnow )
+    updated_at = db.Column ( db.DateTime, default = datetime.utcnow, onupdate = datetime.utcnow )
 
     # Constraint to counter duplicate billing for the same month and year
     __table_args__ = (
