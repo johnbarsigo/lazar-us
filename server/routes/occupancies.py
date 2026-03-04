@@ -3,7 +3,9 @@ from flask import request
 from flask_restful import Resource
 # from auth.permissions import admin_required, manager_required
 # from auth.jwt import token_required
-from models import db, Occupancy, Tenant, Room
+from auth.permissions import require_admin, require_manager
+from models import db, Occupancy, Tenant, Room, MonthlyCharge
+from datetime import datetime
 
 
 # Retrieve a list of all occupancies and details.
@@ -14,17 +16,22 @@ class Occupancies ( Resource ) :
     # @manager_required
     def get ( self ) :
 
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
+
         occupancies = Occupancy.query.all()
 
         return [ {
             "id" : o.id,
             "tenant_id" : o.tenant_id,
             "room_id" : o.room_id,
-            "rent_amount" : o.rent_amount,
-            "water_bill" : o.water_bill,
-            "other_charges" : o.other_charges,
-            "total_amount" : o.rent_amount + o.water_bill + o.other_charges,
-            "charge_date" : o.charge_date
+            "room_number" : o.room.room_number,
+            "rent_amount" : int (o.agreed_rent),
+            "start_date" : str (o.start_date),
+            "end_date" : str (o.end_date) if o.end_date else None,
+            "created_at" : str (o.created_at)
         } for o in occupancies ], 200
 
 
@@ -36,6 +43,7 @@ class OccupancyDetails ( Resource ) :
     def get ( self, occupancy_id ) :
 
         occupancy = Occupancy.query.get ( occupancy_id )
+        monthly_charge = MonthlyCharge.query.filter_by ( occupancy_id = occupancy_id ).first()
 
         if not occupancy :
             return { "error" : "Occupancy not found." }, 404
@@ -44,11 +52,14 @@ class OccupancyDetails ( Resource ) :
             "id" : occupancy.id,
             "tenant_id" : occupancy.tenant_id,
             "room_id" : occupancy.room_id,
-            "rent_amount" : occupancy.rent_amount,
-            "water_bill" : occupancy.water_bill,
-            "other_charges" : occupancy.other_charges,
-            "total_amount" : occupancy.rent_amount + occupancy.water_bill + occupancy.other_charges,
-            "charge_date" : occupancy.charge_date
+            "room_number" : occupancy.room.room_number,
+            "rent_amount" : int (occupancy.agreed_rent),
+            "start_date" : str (occupancy.start_date),
+            "end_date" : str (occupancy.end_date) if occupancy.end_date else None,
+            "water_bill" : int (monthly_charge.water_bill) if monthly_charge and monthly_charge.water_bill else 0,
+            "total_amount" : int (occupancy.agreed_rent + (monthly_charge.water_bill if monthly_charge else 0)),
+            "charge_date" : str (monthly_charge.charge_date.isoformat()) if monthly_charge else None,
+            "created_at" : str (occupancy.created_at.isoformat())
         }, 200
     
 
