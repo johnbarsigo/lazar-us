@@ -9,6 +9,7 @@ from datetime import date
 
 
 class GenerateMonthlyBillings ( Resource ) :
+    # /api/billings/generate
 
     # Admin/ Manager required.
     # @token_required
@@ -45,7 +46,10 @@ class GenerateMonthlyBillings ( Resource ) :
                 month = month,
                 year = year,
                 rent_amount = o.agreed_rent,
-                water_bill = data.get ( "water_bill", 0 )
+                water_bill = data.get ( "water_bill", 0 ),
+                charge_date = date.today(),
+                total_amount = o.agreed_rent + data.get ( "water_bill", 0 ),
+                created_at = date.today()
             )
 
             db.session.add ( charge )
@@ -58,6 +62,7 @@ class GenerateMonthlyBillings ( Resource ) :
 
 
 class BillingsList ( Resource ) :
+    # /api/billings
 
     # Admin/ Manager required.
     # @token_required
@@ -83,6 +88,7 @@ class BillingsList ( Resource ) :
 
 
 class BillingDetails ( Resource ) :
+    # /api/billings/<int:billing_id>
 
     # Admin/ Manager required.
     # @token_required
