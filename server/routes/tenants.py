@@ -9,6 +9,7 @@ from datetime import datetime
 
 
 class TenantsList ( Resource ) :
+    # /api/tenants
 
     # Retrieve all tenants and details.
     # Admin/ Manager required.
@@ -33,6 +34,8 @@ class TenantsList ( Resource ) :
             "occupancy_start_date" : str (t.occupancies [ -1 ].start_date) if t.occupancies else None,
             "created_at" : str (t.created_at)
         } for t in tenants ], 200
+
+
 
 
 # Create occupancy in the same request as tenant creation.
@@ -84,7 +87,8 @@ class CreateTenantOccupancy ( Resource ) :
             data = request.get_json ()
 
             # Validate required fields for tenant and occupancy creation.
-            required_fields = [ "name", "email", "phone", "national_id", "room_id", "agreed_rent", "start_date" ]
+            # required_fields = [ "name", "email", "phone", "national_id", "room_id", "agreed_rent", "start_date" ]
+            required_fields = [ "name", "email", "phone", "national_id", "room_id", "agreed_rent" ]
 
             for field in required_fields :
                 if field not in data :
@@ -94,15 +98,19 @@ class CreateTenantOccupancy ( Resource ) :
             if Tenant.query.filter_by ( national_id = data [ "national_id" ] ).first () :
                 return { "error" : "Tenant with same national id already exists."}
             
+            # Check if tenant with the same email already exists.
+            if Tenant.query.filter_by ( email = data [ "email" ] ).first () :
+                return { "error" : "Tenant with same email already exists."}
+            
             # Verify room availability
             room = Room.query.get ( data [ "room_id" ] )
             if not room or room.status != "available" :
                 return { "error" : "Room not available."}, 409
 
-            try :
-                start_date = datetime.fromisoformat ( data [ "start_date" ] ).date()
-            except :
-                return { "error" : "Invalid date format for start_date. Use ISO format (YYYY-MM-DD)." }, 400
+            # try :
+            #     start_date = datetime.fromisoformat ( data [ "start_date" ] ).date()
+            # except :
+            #     return { "error" : "Invalid date format for start_date. Use ISO format (YYYY-MM-DD)." }, 400
 
             # Create tenant instance.
             tenant = Tenant (
@@ -121,7 +129,8 @@ class CreateTenantOccupancy ( Resource ) :
                 tenant_id = tenant.id,
                 room_id = data [ "room_id" ],
                 agreed_rent = data [ "agreed_rent" ],
-                start_date = start_date
+                start_date = datetime.utcnow().date(),
+                created_at = datetime.utcnow()
             )
 
             db.session.add ( occupancy )
@@ -132,7 +141,7 @@ class CreateTenantOccupancy ( Resource ) :
             db.session.commit ()
 
             return {
-                "message" : f"Tenant id { tenant.id }, { tenant.name } created successfully and checked into room { room.room_number }. Check-in date: { start_date }."
+                "message" : f"Tenant id { tenant.id }, { tenant.name } created successfully and checked into room { room.room_number }. Check-in date: { str (occupancy.start_date) }."
             }, 201
         
         except Exception as e :
@@ -140,9 +149,51 @@ class CreateTenantOccupancy ( Resource ) :
     
     def create_new_occupancy_for_existing_tenant ( self, data ) :
 
+        # try:
+            
+        #     with db.session.begin():
+                
+        #         active_occupancy = Occupancy.query.filter_by(
+        #             tenant_id=data["tenant_id"],
+        #             end_date=None   
+        #         ).first()
+                
+        #         new_room = (
+        #             db.session.query(Room)
+        #             .filter(Room.id == data["room_id"])
+        #             # .with_for_update()
+        #             .first()
+        #         )
+                
+        #         switch_date = datetime.utcnow().date()
+                
+        #         active_occupancy.end_date = switch_date
+                
+        #         old_room = Room.query.get(active_occupancy.room_id)
+        #         old_room.status = "available"
+        #         old_room.current_occupant_id = None
+                
+        #         new_occupancy = Occupancy(
+        #             tenant_id=data["tenant_id"],
+        #             room_id=data["room_id"],
+        #             agreed_rent=data["agreed_rent"],
+        #             start_date=switch_date
+        #         )
+                
+        #         db.session.add(new_occupancy)
+                
+        #         new_room.status = "occupied"
+        #         new_room.current_occupant_id = data["tenant_id"]
+                
+        #     return {"message": f"Room switch successful. Tenant id { tenant.id }, { tenant.name } switched from room { old_room.room_number } to room { new_room.room_number } on { str (switch_date) }."}, 201
+            
+        # except Exception as e:
+        #     db.session.rollback()
+        #     return {"error": str(e)}, 500
+
         try :
 
-            required_fields = [ "tenant_id", "room_id", "agreed_rent", "start_date" ]
+            required_fields = [ "tenant_id", "room_id", "agreed_rent" ]
             for field in required_fields :
                 if field not in data :
                     return { "error" : f"{ field } is required." }, 400
@@ -153,11 +204,9 @@ class CreateTenantOccupancy ( Resource ) :
                 return { "error" : "Tenant not found." }, 404
             
             # Verify tenant has existing occupancy.
-            active_occupancy = Occupancy.query.filer (
-                and_ (
+            active_occupancy = Occupancy.query.filter (
                     Occupancy.tenant_id == data [ "tenant_id" ],
                     Occupancy.end_date == None
-                )
             ).first ()
 
             if not active_occupancy :
@@ -173,7 +222,7 @@ class CreateTenantOccupancy ( Resource ) :
                 return { "error" : "Tenant is already occupying this room." }, 409
             
             try :
-                switch_date = datetime.fromisoformat ( data [ "start_date" ] ).date()
+                switch_date = datetime.utcnow().date()
             
             except Exception as e :
                 return { "error" : "Invalid date format for start_date. Use ISO format (YYYY-MM-DD)." }, 400
@@ -201,7 +250,7 @@ class CreateTenantOccupancy ( Resource ) :
                 room_id = data [ "room_id" ],
                 agreed_rent = data [ "agreed_rent" ],
                 start_date = switch_date,
-                check_in_notes = data.get ( "check_in_notes", f"Tenant switched from room { old_room.room_number } on { switch_date }." )
+                check_in_notes = data.get ( "check_in_notes", f"Tenant switched from room { old_room.room_number } on { str (switch_date) }." )
             )
 
             db.session.add ( new_occupancy )
@@ -214,15 +263,16 @@ class CreateTenantOccupancy ( Resource ) :
 
             return {
                 "type" : "room_switch",
-                "tenant" : tenant.to_dict (),
-                "old_occupancy" : active_occupancy.to_dict (),
-                "old_room" : old_room.to_dict (),
-                "new_occupancy" : new_occupancy.to_dict (),
-                "new_room" : new_room.to_dict (),
-                "message" : f"Tenant id { tenant.id }, { tenant.name } switched from room { old_room.room_number } to room { new_room.room_number } on { switch_date }."
+                # "tenant" : tenant.to_dict (),
+                # "old_occupancy" : active_occupancy.to_dict (),
+                # "old_room" : old_room.to_dict (),
+                # "new_occupancy" : new_occupancy.to_dict (),
+                # "new_room" : new_room.to_dict (),
+                "message" : f"Tenant id { tenant.id }, { tenant.name } switched from room { old_room.room_number } to room { new_room.room_number } on { str (switch_date) }."
             }, 201
         
         except Exception as e :
+            db.session.rollback()
             return { "error" : str (e) }, 500
 
             
@@ -230,6 +280,7 @@ class CreateTenantOccupancy ( Resource ) :
 
 
 class TenantDetails ( Resource ) :
+    # /api/tenants/<int:tenant_id>
 
     # Retireve specific tenant and details.
     # Admin/ Manager required.
@@ -274,22 +325,55 @@ class TenantDetails ( Resource ) :
 
         if not manager :
             return { "error" : "Unauthorized. Manager access required." }, 403
-
-        tenant = Tenant.query.get ( tenant_id )
-
-        if not tenant :
-            return { "error" : "Tenant not found." }, 404
         
-        data = request.get_json ()
+        try :
 
-        tenant.name = data.get ( "name", tenant.name )
-        tenant.email = data.get ( "email", tenant.email )
-        tenant.phone = data.get ( "phone", tenant.phone )
-        tenant.national_id = data.get ( "national_id", tenant.national_id )
+            tenant = Tenant.query.get ( tenant_id )
 
-        db.session.commit ()
+            if not tenant :
+                return { "error" : "Tenant not found." }, 404
+            
+            data = request.get_json ()
 
-        return { "message" : f"Tenant id { tenant.id }, { tenant.name } updated successfully." }, 200
+
+            # GET DATA FROM USER
+            # tenant.name = data.get ( "name", tenant.name )
+            if data.get ( "name" ) :
+                if tenant.name == data [ "name" ] or Tenant.query.filter_by ( name = data [ "name" ]).first() :
+                    return { "error" : "Tenant with this name already exists." }, 400
+                else :
+                    tenant.name = data [ "name" ]
+
+            # tenant.email = data.get ( "email", tenant.email )
+            if data.get ( "email" ) :
+                if tenant.email == data [ "email" ] or Tenant.query.filter_by ( email = data [ "email" ]).first () :
+                    return { "error" : "Email already exists." }, 400
+                else :
+                    tenant.email = data [ "email" ]
+
+
+            # tenant.phone = data.get ( "phone", tenant.phone )
+            if data.get ( "phone" ) :
+                if tenant.phone == data [ "phone" ] or Tenant.query.filter_by ( 
+                    phone = data [ "phone" ]).first () :
+                    return { "error" : "Phone number already exists." }, 400
+                else :
+                    tenant.phone = data [ "phone" ]
+                    
+            # tenant.national_id = data.get ( "national_id", tenant.national_id )
+            if data.get ( "national_id" ) :
+                if tenant.national_id == data [ "national_id" ] or Tenant.query.filter_by ( national_id = data [ "national_id" ]).first () :
+                    return { "error" : "Tenant with this national_id number already exists." }, 400
+                else :
+                    tenant.national_id = data [ "national_id" ]
+
+            db.session.commit ()
+
+            return { "message" : f"Tenant id { tenant.id }, { tenant.name } updated successfully." }, 200
+        
+        except Exception as e :
+            db.session.rollback()
+            return { "error" : str (e) }, 500
     
     # Delete tenant. Work on how to handle occupancy and billing details when a tenant is deleted. Maybe set occupancy end date to current date and mark all future billings as cancelled or delete them.
     # Theory : Delete tenant, set occupancy end date to current date, delete all future billings. This way we maintain historical data for past occupancies and billings while ensuring that no future charges are generated for the deleted tenant.
@@ -309,6 +393,10 @@ class TenantDetails ( Resource ) :
         if not tenant :
             return { "error" : "Tenant not found." }, 404
         
+        # occupancy = tenant.occupancies [-1] if tenant.occupancies else None
+        # if occupancy.end_date :
+        #     return { "message" : "Delete occupancy before"}
+        
         db.session.delete ( tenant )
         db.session.commit ()
 
@@ -318,6 +406,7 @@ class TenantDetails ( Resource ) :
 
 # Retrieves a tenant's list of occupancies. This will allow us to show the tenant's current and past occupancies when we retrieve their details.
 class TenantOccupancies ( Resource ) :
+    # /api/tenants/<int:tenant_id>/occupancies
 
     # Manager required.
     # @token_required
@@ -353,6 +442,7 @@ class TenantOccupancies ( Resource ) :
 
 # Retrieve a tenant's active occupancy, all monthly charges, all payments and running balances. 
 class TenantLedger ( Resource ) :
+    # /api/tenants/<int:tenant_id>/ledger
 
     # Admin/ Manager required.
     # @token_required

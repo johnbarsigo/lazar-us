@@ -9,6 +9,7 @@ from datetime import date
 
 
 class GenerateMonthlyBillings ( Resource ) :
+    # /api/billings/generate
 
     # Admin/ Manager required.
     # @token_required
@@ -45,7 +46,10 @@ class GenerateMonthlyBillings ( Resource ) :
                 month = month,
                 year = year,
                 rent_amount = o.agreed_rent,
-                water_bill = data.get ( "water_bill", 0 )
+                water_bill = data.get ( "water_bill", 0 ),
+                charge_date = date.today(),
+                total_amount = o.agreed_rent + data.get ( "water_bill", 0 ),
+                created_at = date.today()
             )
 
             db.session.add ( charge )
@@ -58,6 +62,7 @@ class GenerateMonthlyBillings ( Resource ) :
 
 
 class BillingsList ( Resource ) :
+    # /api/billings
 
     # Admin/ Manager required.
     # @token_required
@@ -83,6 +88,7 @@ class BillingsList ( Resource ) :
 
 
 class BillingDetails ( Resource ) :
+    # /api/billings/<int:billing_id>
 
     # Admin/ Manager required.
     # @token_required
@@ -128,11 +134,11 @@ class BillingDetails ( Resource ) :
 
         billing.rent_amount = data.get ( "rent_amount", billing.rent_amount )
         billing.water_bill = data.get ( "water_bill", billing.water_bill )
-        # billing.other_charges = data.get ( "other_charges", billing.other_charges )
+        billing.updated_at = datetime.utcnow()
 
         db.session.commit ()
 
-        return { "message" : "Billing record updated successfully." }, 200
+        return { "message" : f"Billing record updated at {billing.updated_at} successfully." }, 200
     
 
     def delete ( self, billing_id ) :

@@ -10,6 +10,7 @@ from datetime import datetime
 
 # Retrieve a list of all occupancies and details.
 class Occupancies ( Resource ) :
+    # /api/occupancies
 
     # Admin/ Manager required.
     # @token_required
@@ -26,6 +27,7 @@ class Occupancies ( Resource ) :
         return [ {
             "id" : o.id,
             "tenant_id" : o.tenant_id,
+            "name" : o.tenant.name,
             "room_id" : o.room_id,
             "room_number" : o.room.room_number,
             "rent_amount" : int (o.agreed_rent),
@@ -36,6 +38,7 @@ class Occupancies ( Resource ) :
 
 
 class OccupancyDetails ( Resource ) :
+    # /api/occupancies/<int:occupancy_id>
 
     # Admin/ Manager required.
     # @token_required
@@ -56,10 +59,13 @@ class OccupancyDetails ( Resource ) :
             "rent_amount" : int (occupancy.agreed_rent),
             "start_date" : str (occupancy.start_date),
             "end_date" : str (occupancy.end_date) if occupancy.end_date else None,
+            "check_in_notes" : occupancy.check_in_notes if occupancy.check_in_notes else None,
+            "check_out_notes" : occupancy.check_out_notes if occupancy.check_out_notes else None,
             "water_bill" : int (monthly_charge.water_bill) if monthly_charge and monthly_charge.water_bill else 0,
             "total_amount" : int (occupancy.agreed_rent + (monthly_charge.water_bill if monthly_charge else 0)),
             "charge_date" : str (monthly_charge.charge_date.isoformat()) if monthly_charge else None,
-            "created_at" : str (occupancy.created_at.isoformat())
+            "created_at" : str (occupancy.created_at.isoformat()),
+            "updated_at" : str (occupancy.updated_at.isoformat()) if occupancy.updated_at else None
         }, 200
     
 
@@ -94,6 +100,8 @@ class OccupancyDetails ( Resource ) :
                 "room_id" : occupancy.room_id,
                 "room_number" : occupancy.room.room_number,
                 "rent_amount" : int (occupancy.agreed_rent),
+                "check_in_notes" : occupancy.check_in_notes if occupancy.check_in_notes else None,
+                "check_out_notes" : occupancy.check_out_notes if occupancy.check_out_notes else None,
                 "water_bill" : int (monthly_charge.water_bill) if monthly_charge else 0,
                 "total_amount" : int (occupancy.agreed_rent + (monthly_charge.water_bill if monthly_charge else 0)),
                 "charge_date" : str (monthly_charge.charge_date.isoformat()) if monthly_charge else None,
@@ -116,6 +124,9 @@ class OccupancyDetails ( Resource ) :
 
         if not occupancy :
             return { "error" : "Occupancy not found." }, 404
+        
+        occupancy.room.status = "available"
+        occupancy.tenant_id = []
         
         db.session.delete ( occupancy )
         db.session.commit ()

@@ -13,6 +13,7 @@ from auth.jwt import generate_token
 
 # List all users in the system. Admin required.
 class UsersList ( Resource ) :
+    # /api/users
 
     # Admin required.
     # @jwt_required
@@ -44,6 +45,7 @@ class UsersList ( Resource ) :
 
 
 class CreateUser ( Resource ) :
+    # /api/users/create
 
     # Create new user
     # Admin required
@@ -88,12 +90,13 @@ class CreateUser ( Resource ) :
             db.session.rollback ()
             return { "error" : str(e) }, 500
 
-        return { "message" : f"User ID: {user.id}, name {user.name} registered successfully." }
+        return { "message" : f"User ID: {user.id}, name {user.username} registered successfully." }
 
 
 
 class UserLogin ( Resource ) :
-    
+    # /api/users/login
+
     # Login user
     def post ( self ) :
 
@@ -129,6 +132,7 @@ class UserLogin ( Resource ) :
 
 
 class UserDetails ( Resource ) :
+    # /api/users/<int:user_id>
 
     # Show logged in User details.
     # @token_required
@@ -188,8 +192,12 @@ class UserDetails ( Resource ) :
 
             if data.get ( "username" ) :
                 # Check whether username is already taken
-                if User.query.filter_by ( username = data [ "username" ]).filter ( User.id != user_id ).first ():
+                # if User.query.filter_by ( username = data [ "username" ]).filter ( User.id != user_id ).first ():
+                #     return { "error" : "Username already exists." }, 400
+                if user.username == data [ "username" ] and User.query.filter_by ( username = data [ "username" ]).first () :
                     return { "error" : "Username already exists." }, 400
+                else :
+                    user.username = data [ "username" ]
             
             if data.get ( "email" ) :
                 user.email = data [ "email" ]
@@ -210,7 +218,9 @@ class UserDetails ( Resource ) :
             
             db.session.commit ()
 
-            return { "message" : f"User { user.username } details updated successfully." }
+            new_user = User.query.get ( user_id )
+
+            return { "message" : f"User { new_user.username } details updated successfully." }
         
         except Exception as e :
             db.session.rollback ()
