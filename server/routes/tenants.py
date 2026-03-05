@@ -84,7 +84,8 @@ class CreateTenantOccupancy ( Resource ) :
             data = request.get_json ()
 
             # Validate required fields for tenant and occupancy creation.
-            required_fields = [ "name", "email", "phone", "national_id", "room_id", "agreed_rent", "start_date" ]
+            # required_fields = [ "name", "email", "phone", "national_id", "room_id", "agreed_rent", "start_date" ]
+            required_fields = [ "name", "email", "phone", "national_id", "room_id", "agreed_rent" ]
 
             for field in required_fields :
                 if field not in data :
@@ -99,10 +100,10 @@ class CreateTenantOccupancy ( Resource ) :
             if not room or room.status != "available" :
                 return { "error" : "Room not available."}, 409
 
-            try :
-                start_date = datetime.fromisoformat ( data [ "start_date" ] ).date()
-            except :
-                return { "error" : "Invalid date format for start_date. Use ISO format (YYYY-MM-DD)." }, 400
+            # try :
+            #     start_date = datetime.fromisoformat ( data [ "start_date" ] ).date()
+            # except :
+            #     return { "error" : "Invalid date format for start_date. Use ISO format (YYYY-MM-DD)." }, 400
 
             # Create tenant instance.
             tenant = Tenant (
@@ -121,7 +122,8 @@ class CreateTenantOccupancy ( Resource ) :
                 tenant_id = tenant.id,
                 room_id = data [ "room_id" ],
                 agreed_rent = data [ "agreed_rent" ],
-                start_date = start_date
+                start_date = datetime.utcnow().date(),
+                created_at = datetime.utcnow()
             )
 
             db.session.add ( occupancy )
@@ -132,7 +134,7 @@ class CreateTenantOccupancy ( Resource ) :
             db.session.commit ()
 
             return {
-                "message" : f"Tenant id { tenant.id }, { tenant.name } created successfully and checked into room { room.room_number }. Check-in date: { start_date }."
+                "message" : f"Tenant id { tenant.id }, { tenant.name } created successfully and checked into room { room.room_number }. Check-in date: { str (occupancy.start_date) }."
             }, 201
         
         except Exception as e :
@@ -140,9 +142,51 @@ class CreateTenantOccupancy ( Resource ) :
     
     def create_new_occupancy_for_existing_tenant ( self, data ) :
 
+        # try:
+            
+        #     with db.session.begin():
+                
+        #         active_occupancy = Occupancy.query.filter_by(
+        #             tenant_id=data["tenant_id"],
+        #             end_date=None   
+        #         ).first()
+                
+        #         new_room = (
+        #             db.session.query(Room)
+        #             .filter(Room.id == data["room_id"])
+        #             # .with_for_update()
+        #             .first()
+        #         )
+                
+        #         switch_date = datetime.utcnow().date()
+                
+        #         active_occupancy.end_date = switch_date
+                
+        #         old_room = Room.query.get(active_occupancy.room_id)
+        #         old_room.status = "available"
+        #         old_room.current_occupant_id = None
+                
+        #         new_occupancy = Occupancy(
+        #             tenant_id=data["tenant_id"],
+        #             room_id=data["room_id"],
+        #             agreed_rent=data["agreed_rent"],
+        #             start_date=switch_date
+        #         )
+                
+        #         db.session.add(new_occupancy)
+                
+        #         new_room.status = "occupied"
+        #         new_room.current_occupant_id = data["tenant_id"]
+                
+        #     return {"message": f"Room switch successful. Tenant id { tenant.id }, { tenant.name } switched from room { old_room.room_number } to room { new_room.room_number } on { str (switch_date) }."}, 201
+            
+        # except Exception as e:
+        #     db.session.rollback()
+        #     return {"error": str(e)}, 500
+
         try :
 
-            required_fields = [ "tenant_id", "room_id", "agreed_rent", "start_date" ]
+            required_fields = [ "tenant_id", "room_id", "agreed_rent" ]
             for field in required_fields :
                 if field not in data :
                     return { "error" : f"{ field } is required." }, 400
@@ -153,11 +197,9 @@ class CreateTenantOccupancy ( Resource ) :
                 return { "error" : "Tenant not found." }, 404
             
             # Verify tenant has existing occupancy.
-            active_occupancy = Occupancy.query.filer (
-                and_ (
+            active_occupancy = Occupancy.query.filter (
                     Occupancy.tenant_id == data [ "tenant_id" ],
                     Occupancy.end_date == None
-                )
             ).first ()
 
             if not active_occupancy :
@@ -173,7 +215,7 @@ class CreateTenantOccupancy ( Resource ) :
                 return { "error" : "Tenant is already occupying this room." }, 409
             
             try :
-                switch_date = datetime.fromisoformat ( data [ "start_date" ] ).date()
+                switch_date = datetime.utcnow().date()
             
             except Exception as e :
                 return { "error" : "Invalid date format for start_date. Use ISO format (YYYY-MM-DD)." }, 400
@@ -201,7 +243,7 @@ class CreateTenantOccupancy ( Resource ) :
                 room_id = data [ "room_id" ],
                 agreed_rent = data [ "agreed_rent" ],
                 start_date = switch_date,
-                check_in_notes = data.get ( "check_in_notes", f"Tenant switched from room { old_room.room_number } on { switch_date }." )
+                check_in_notes = data.get ( "check_in_notes", f"Tenant switched from room { old_room.room_number } on { str (switch_date) }." )
             )
 
             db.session.add ( new_occupancy )
@@ -214,15 +256,16 @@ class CreateTenantOccupancy ( Resource ) :
 
             return {
                 "type" : "room_switch",
-                "tenant" : tenant.to_dict (),
-                "old_occupancy" : active_occupancy.to_dict (),
-                "old_room" : old_room.to_dict (),
-                "new_occupancy" : new_occupancy.to_dict (),
-                "new_room" : new_room.to_dict (),
-                "message" : f"Tenant id { tenant.id }, { tenant.name } switched from room { old_room.room_number } to room { new_room.room_number } on { switch_date }."
+                # "tenant" : tenant.to_dict (),
+                # "old_occupancy" : active_occupancy.to_dict (),
+                # "old_room" : old_room.to_dict (),
+                # "new_occupancy" : new_occupancy.to_dict (),
+                # "new_room" : new_room.to_dict (),
+                "message" : f"Tenant id { tenant.id }, { tenant.name } switched from room { old_room.room_number } to room { new_room.room_number } on { str (switch_date) }."
             }, 201
         
         except Exception as e :
+            db.session.rollback()
             return { "error" : str (e) }, 500
 
             
