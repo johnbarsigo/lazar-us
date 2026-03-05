@@ -125,6 +125,9 @@ class OccupancyDetails ( Resource ) :
         if not occupancy :
             return { "error" : "Occupancy not found." }, 404
         
+        occupancy.room.status = "available"
+        occupancy.tenant_id = []
+        
         db.session.delete ( occupancy )
         db.session.commit ()
         return { "message" : "Occupancy deleted successfully." }, 200

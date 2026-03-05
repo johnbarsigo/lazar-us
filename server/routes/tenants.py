@@ -9,6 +9,7 @@ from datetime import datetime
 
 
 class TenantsList ( Resource ) :
+    # /api/tenants
 
     # Retrieve all tenants and details.
     # Admin/ Manager required.
@@ -33,6 +34,8 @@ class TenantsList ( Resource ) :
             "occupancy_start_date" : str (t.occupancies [ -1 ].start_date) if t.occupancies else None,
             "created_at" : str (t.created_at)
         } for t in tenants ], 200
+
+
 
 
 # Create occupancy in the same request as tenant creation.
@@ -94,6 +97,10 @@ class CreateTenantOccupancy ( Resource ) :
             # Check if tenant with the same national_id already exists.
             if Tenant.query.filter_by ( national_id = data [ "national_id" ] ).first () :
                 return { "error" : "Tenant with same national id already exists."}
+            
+            # Check if tenant with the same email already exists.
+            if Tenant.query.filter_by ( email = data [ "email" ] ).first () :
+                return { "error" : "Tenant with same email already exists."}
             
             # Verify room availability
             room = Room.query.get ( data [ "room_id" ] )
@@ -273,6 +280,7 @@ class CreateTenantOccupancy ( Resource ) :
 
 
 class TenantDetails ( Resource ) :
+    # /api/tenants/<int:tenant_id>
 
     # Retireve specific tenant and details.
     # Admin/ Manager required.
@@ -317,22 +325,55 @@ class TenantDetails ( Resource ) :
 
         if not manager :
             return { "error" : "Unauthorized. Manager access required." }, 403
-
-        tenant = Tenant.query.get ( tenant_id )
-
-        if not tenant :
-            return { "error" : "Tenant not found." }, 404
         
-        data = request.get_json ()
+        try :
 
-        tenant.name = data.get ( "name", tenant.name )
-        tenant.email = data.get ( "email", tenant.email )
-        tenant.phone = data.get ( "phone", tenant.phone )
-        tenant.national_id = data.get ( "national_id", tenant.national_id )
+            tenant = Tenant.query.get ( tenant_id )
 
-        db.session.commit ()
+            if not tenant :
+                return { "error" : "Tenant not found." }, 404
+            
+            data = request.get_json ()
 
-        return { "message" : f"Tenant id { tenant.id }, { tenant.name } updated successfully." }, 200
+
+            # GET DATA FROM USER
+            # tenant.name = data.get ( "name", tenant.name )
+            if data.get ( "name" ) :
+                if tenant.name == data [ "name" ] or Tenant.query.filter_by ( name = data [ "name" ]).first() :
+                    return { "error" : "Tenant with this name already exists." }, 400
+                else :
+                    tenant.name = data [ "name" ]
+
+            # tenant.email = data.get ( "email", tenant.email )
+            if data.get ( "email" ) :
+                if tenant.email == data [ "email" ] or Tenant.query.filter_by ( email = data [ "email" ]).first () :
+                    return { "error" : "Email already exists." }, 400
+                else :
+                    tenant.email = data [ "email" ]
+
+
+            # tenant.phone = data.get ( "phone", tenant.phone )
+            if data.get ( "phone" ) :
+                if tenant.phone == data [ "phone" ] or Tenant.query.filter_by ( 
+                    phone = data [ "phone" ]).first () :
+                    return { "error" : "Phone number already exists." }, 400
+                else :
+                    tenant.phone = data [ "phone" ]
+                    
+            # tenant.national_id = data.get ( "national_id", tenant.national_id )
+            if data.get ( "national_id" ) :
+                if tenant.national_id == data [ "national_id" ] or Tenant.query.filter_by ( national_id = data [ "national_id" ]).first () :
+                    return { "error" : "Tenant with this national_id number already exists." }, 400
+                else :
+                    tenant.national_id = data [ "national_id" ]
+
+            db.session.commit ()
+
+            return { "message" : f"Tenant id { tenant.id }, { tenant.name } updated successfully." }, 200
+        
+        except Exception as e :
+            db.session.rollback()
+            return { "error" : str (e) }, 500
     
     # Delete tenant. Work on how to handle occupancy and billing details when a tenant is deleted. Maybe set occupancy end date to current date and mark all future billings as cancelled or delete them.
     # Theory : Delete tenant, set occupancy end date to current date, delete all future billings. This way we maintain historical data for past occupancies and billings while ensuring that no future charges are generated for the deleted tenant.
@@ -352,6 +393,10 @@ class TenantDetails ( Resource ) :
         if not tenant :
             return { "error" : "Tenant not found." }, 404
         
+        # occupancy = tenant.occupancies [-1] if tenant.occupancies else None
+        # if occupancy.end_date :
+        #     return { "message" : "Delete occupancy before"}
+        
         db.session.delete ( tenant )
         db.session.commit ()
 
@@ -361,6 +406,7 @@ class TenantDetails ( Resource ) :
 
 # Retrieves a tenant's list of occupancies. This will allow us to show the tenant's current and past occupancies when we retrieve their details.
 class TenantOccupancies ( Resource ) :
+    # /api/tenants/<int:tenant_id>/occupancies
 
     # Manager required.
     # @token_required
@@ -396,6 +442,7 @@ class TenantOccupancies ( Resource ) :
 
 # Retrieve a tenant's active occupancy, all monthly charges, all payments and running balances. 
 class TenantLedger ( Resource ) :
+    # /api/tenants/<int:tenant_id>/ledger
 
     # Admin/ Manager required.
     # @token_required
