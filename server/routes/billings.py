@@ -23,7 +23,7 @@ class GenerateMonthlyBillings ( Resource ) :
 
         data = request.get_json()
 
-        month  = data [ "month" ]
+        month  = data [ "month" ] # Insert number for month (1, 2, 3...12)
         year = data [ "year" ]
 
         active_occupancies = Occupancy.query.filter ( Occupancy.end_date == None ).all()
