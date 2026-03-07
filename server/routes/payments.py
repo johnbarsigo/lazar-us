@@ -87,8 +87,3 @@ class PaymentDetails ( Resource ) :
             "payment_date" : str (payment.payment_date.isoformat()),
             "created_at" : str (payment.created_at.isoformat())
         }
-
-
-
-
-# ================ CREATE OCCUPANCY USING TENANTS.PY AND TEST DELETE OCCUPANCY USING OCCUPANCIES.PY ================
