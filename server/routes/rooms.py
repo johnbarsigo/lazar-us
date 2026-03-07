@@ -33,41 +33,6 @@ class RoomsList ( Resource ) :
         } for r in rooms ], 200
     
 
-    # Admin required.
-    # @token_required
-    # @admin_required
-    def post ( self ) :
-
-        data = request.get_json ()
-
-        room = Room (
-            room_number = data [ "room_number" ],
-            default_rent = data [ "default_rent" ],
-            capacity = data [ "capacity" ],
-            created_at = datetime.utcnow(),
-            status = "available"
-        )
-
-        db.session.add ( room )
-        db.session.commit ()
-
-        return { "message" : f"Room { room.room_number } created successfully." }, 201
-
-    # Admin required.
-    # @token_required
-    # @admin_required
-    def delete ( self, room_id ) :
-
-        room = Room.query.get ( room_id )
-
-        if not room :
-            return { "error" : "Room not found." }, 404
-        
-        db.session.delete ( room )
-        db.session.commit ()
-
-        return { "message" : "Room deleted successfully." }, 200
-    
 
 class RoomDetails ( Resource ) :
 
@@ -103,3 +68,38 @@ class RoomDetails ( Resource ) :
             "created_at" : str(room.created_at)
         }, 200
     
+
+        # Admin required.
+    # @token_required
+    # @admin_required
+    def post ( self ) :
+
+        data = request.get_json ()
+
+        room = Room (
+            room_number = data [ "room_number" ],
+            default_rent = data [ "default_rent" ],
+            capacity = data [ "capacity" ],
+            created_at = datetime.utcnow(),
+            status = "available"
+        )
+
+        db.session.add ( room )
+        db.session.commit ()
+
+        return { "message" : f"Room { room.room_number } created successfully." }, 201
+
+    # Admin required.
+    # @token_required
+    # @admin_required
+    def delete ( self, room_id ) :
+
+        room = Room.query.get ( room_id )
+
+        if not room :
+            return { "error" : "Room not found." }, 404
+        
+        db.session.delete ( room )
+        db.session.commit ()
+
+        return { "message" : "Room deleted successfully." }, 200
