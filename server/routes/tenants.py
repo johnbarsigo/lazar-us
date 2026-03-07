@@ -427,6 +427,8 @@ class TenantOccupancies ( Resource ) :
 
         return [ {
             "id" : o.id,
+            "tenant_id" : o.tenant.id,
+            "tenant_name" : o.tenant.name,
             "room_id" : o.room_id,
             "room_number" : o.room.room_number,
             "agreed_rent" : int (o.agreed_rent),
