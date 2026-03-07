@@ -78,7 +78,11 @@ class BillingsList ( Resource ) :
 
         return [ {
             "id" : b.id,
+            "tenant_id" : b.occupancy.tenant_id,
+            "tenant_name" : b.occupancy.tenant.name,
             "occupancy_id" : b.occupancy_id,
+            "room_id" : b.occupancy.room_id,
+            "room_number" : b.occupancy.room.room_number,
             "month" : b.month,
             "year" : b.year,
             "rent_amount" : int (b.rent_amount),
