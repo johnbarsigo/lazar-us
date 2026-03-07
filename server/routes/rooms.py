@@ -9,6 +9,7 @@ from datetime import datetime
 
 
 class RoomsList ( Resource ) :
+    # /api/rooms
 
     # Admin/ Manager required.
     # @token_required
@@ -31,9 +32,9 @@ class RoomsList ( Resource ) :
             "current_occupants" : len ( r.occupancies ),
             "created_at" : str(r.created_at)
         } for r in rooms ], 200
-    
 
-    # Admin required.
+
+            # Admin required.
     # @token_required
     # @admin_required
     def post ( self ) :
@@ -51,25 +52,12 @@ class RoomsList ( Resource ) :
         db.session.add ( room )
         db.session.commit ()
 
-        return { "message" : f"Room { room.room_number } created successfully." }, 201
-
-    # Admin required.
-    # @token_required
-    # @admin_required
-    def delete ( self, room_id ) :
-
-        room = Room.query.get ( room_id )
-
-        if not room :
-            return { "error" : "Room not found." }, 404
-        
-        db.session.delete ( room )
-        db.session.commit ()
-
-        return { "message" : "Room deleted successfully." }, 200
+        return { "message" : f"Room { room.room_number } created successfully." }, 201        
     
 
+
 class RoomDetails ( Resource ) :
+    # /api/rooms/<int:room_id>
 
     # Admin/ Manager required.
     # @token_required
@@ -103,3 +91,23 @@ class RoomDetails ( Resource ) :
             "created_at" : str(room.created_at)
         }, 200
     
+
+
+
+    # Admin required.
+    # @token_required
+    # @admin_required
+    def delete ( self, room_id ) :
+
+        room = Room.query.get ( room_id )
+
+        if not room :
+            return { "error" : "Room not found." }, 404
+        
+        if room.status == "occupied" :
+            return { "error" : "Cannot delete occupied room. Please end occupancy before deleting." }, 400
+        
+        db.session.delete ( room )
+        db.session.commit ()
+
+        return { "message" : "Room deleted successfully." }, 200

@@ -381,26 +381,26 @@ class TenantDetails ( Resource ) :
     # Admin required.
     # @token_required
     # @admin_required
-    def delete ( self, tenant_id ) :
+    # def delete ( self, tenant_id ) :
 
-        admin = require_admin ()
+    #     admin = require_admin ()
 
-        if not admin :
-            return { "error" : "Admin access required." }, 403
+    #     if not admin :
+    #         return { "error" : "Admin access required." }, 403
 
-        tenant = Tenant.query.get ( tenant_id )
+    #     tenant = Tenant.query.get ( tenant_id )
 
-        if not tenant :
-            return { "error" : "Tenant not found." }, 404
+    #     if not tenant :
+    #         return { "error" : "Tenant not found." }, 404
         
-        # occupancy = tenant.occupancies [-1] if tenant.occupancies else None
-        # if occupancy.end_date :
-        #     return { "message" : "Delete occupancy before"}
+    #     # occupancy = tenant.occupancies [-1] if tenant.occupancies else None
+    #     # if occupancy.end_date :
+    #     #     return { "message" : "Delete occupancy before"}
         
-        db.session.delete ( tenant )
-        db.session.commit ()
+    #     db.session.delete ( tenant )
+    #     db.session.commit ()
 
-        return { "message" : "Tenant deleted successfully." }, 200
+    #     return { "message" : "Tenant deleted successfully." }, 200
 
 
 
@@ -427,6 +427,8 @@ class TenantOccupancies ( Resource ) :
 
         return [ {
             "id" : o.id,
+            "tenant_id" : o.tenant.id,
+            "tenant_name" : o.tenant.name,
             "room_id" : o.room_id,
             "room_number" : o.room.room_number,
             "agreed_rent" : int (o.agreed_rent),

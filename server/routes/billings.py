@@ -5,7 +5,7 @@ from flask_restful import Resource
 # from auth.jwt import token_required
 from auth.permissions import require_admin, require_manager
 from models import db, MonthlyCharge, Occupancy
-from datetime import date
+from datetime import datetime, date
 
 
 class GenerateMonthlyBillings ( Resource ) :
@@ -23,7 +23,7 @@ class GenerateMonthlyBillings ( Resource ) :
 
         data = request.get_json()
 
-        month  = data [ "month" ]
+        month  = data [ "month" ] # Insert number for month (1, 2, 3...12)
         year = data [ "year" ]
 
         active_occupancies = Occupancy.query.filter ( Occupancy.end_date == None ).all()
@@ -78,7 +78,11 @@ class BillingsList ( Resource ) :
 
         return [ {
             "id" : b.id,
+            "tenant_id" : b.occupancy.tenant_id,
+            "tenant_name" : b.occupancy.tenant.name,
             "occupancy_id" : b.occupancy_id,
+            "room_id" : b.occupancy.room_id,
+            "room_number" : b.occupancy.room.room_number,
             "month" : b.month,
             "year" : b.year,
             "rent_amount" : int (b.rent_amount),
@@ -114,7 +118,8 @@ class BillingDetails ( Resource ) :
             "water_bill" : int (billing.water_bill),
             # "other_charges" : billing.other_charges,
             "charge_date" : str (billing.charge_date.isoformat()),
-            "created_at" : str (billing.created_at.isoformat())
+            "created_at" : str (billing.created_at.isoformat()),
+            "updated_at" : str (billing.updated_at.isoformat()) if billing.updated_at else None
         }, 200
     
 
@@ -132,13 +137,17 @@ class BillingDetails ( Resource ) :
         
         data = request.get_json()
 
-        billing.rent_amount = data.get ( "rent_amount", billing.rent_amount )
-        billing.water_bill = data.get ( "water_bill", billing.water_bill )
+        if data.get ( "rent_amount" ) :
+            billing.rent_amount = data [ "rent_amount" ]
+        if data.get ( "water_bill" ) :
+            billing.water_bill = data [ "water_bill" ]
+        # billing.rent_amount = data.get ( "rent_amount", billing.rent_amount )
+        # billing.water_bill = data.get ( "water_bill", billing.water_bill )
         billing.updated_at = datetime.utcnow()
 
         db.session.commit ()
 
-        return { "message" : f"Billing record updated at {billing.updated_at} successfully." }, 200
+        return { "message" : f"Billing record updated at { str(billing.updated_at) } successfully." }, 200
     
 
     def delete ( self, billing_id ) :
