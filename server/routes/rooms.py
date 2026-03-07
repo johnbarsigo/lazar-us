@@ -9,6 +9,7 @@ from datetime import datetime
 
 
 class RoomsList ( Resource ) :
+    # /api/rooms
 
     # Admin/ Manager required.
     # @token_required
@@ -31,10 +32,32 @@ class RoomsList ( Resource ) :
             "current_occupants" : len ( r.occupancies ),
             "created_at" : str(r.created_at)
         } for r in rooms ], 200
+
+
+            # Admin required.
+    # @token_required
+    # @admin_required
+    def post ( self ) :
+
+        data = request.get_json ()
+
+        room = Room (
+            room_number = data [ "room_number" ],
+            default_rent = data [ "default_rent" ],
+            capacity = data [ "capacity" ],
+            created_at = datetime.utcnow(),
+            status = "available"
+        )
+
+        db.session.add ( room )
+        db.session.commit ()
+
+        return { "message" : f"Room { room.room_number } created successfully." }, 201        
     
 
 
 class RoomDetails ( Resource ) :
+    # /api/rooms/<int:room_id>
 
     # Admin/ Manager required.
     # @token_required
@@ -69,25 +92,7 @@ class RoomDetails ( Resource ) :
         }, 200
     
 
-        # Admin required.
-    # @token_required
-    # @admin_required
-    def post ( self ) :
 
-        data = request.get_json ()
-
-        room = Room (
-            room_number = data [ "room_number" ],
-            default_rent = data [ "default_rent" ],
-            capacity = data [ "capacity" ],
-            created_at = datetime.utcnow(),
-            status = "available"
-        )
-
-        db.session.add ( room )
-        db.session.commit ()
-
-        return { "message" : f"Room { room.room_number } created successfully." }, 201
 
     # Admin required.
     # @token_required
@@ -98,6 +103,9 @@ class RoomDetails ( Resource ) :
 
         if not room :
             return { "error" : "Room not found." }, 404
+        
+        if room.status == "occupied" :
+            return { "error" : "Cannot delete occupied room. Please end occupancy before deleting." }, 400
         
         db.session.delete ( room )
         db.session.commit ()
