@@ -93,3 +93,12 @@ app = create_app ()
 
 if __name__ == "__main__" :
     app.run ( debug = True, port = 5555 )
+
+
+# ===============TO-DO/THINKPAD===============
+# Separate all tenants with active tenants, where room_id is NOT NULL
+# Delete Occupancy does not delete the associated tenant, good
+# Delete Tenant should end occupancy; set end_date, set Room as available
+# Fix validation when creating/ updating user details. OR instead of AND, as fixed in TenantDetails
+# Keep DEL tenant ( commented out ) but find a way to keep occupancy records when deleting the tenant, which can only be done after deleting occupancy ( conundrum )
+# 
