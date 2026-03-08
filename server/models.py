@@ -95,7 +95,7 @@ class MonthlyCharge ( db.Model ) :
     occupancy_id = db.Column ( db.Integer, db.ForeignKey ( "occupancies.id" ), nullable = False )
     rent_amount = db.Column ( db.Numeric (10, 2), nullable = False )
     water_bill = db.Column ( db.Numeric (10, 2), nullable = False )
-    month = db.Column ( db.String ( 20), nullable = False )
+    month = db.Column ( db.Integer, nullable = False, default = datetime.utcnow().month ) # Store month as integer (1-12) for easier filtering and to avoid issues with different languages/ spellings.
     year = db.Column ( db.Integer, nullable = False )
     charge_date = db.Column ( db.Date, nullable = False )
     total_amount = db.Column ( db.Numeric(10, 2), nullable = True, default = rent_amount + water_bill )
