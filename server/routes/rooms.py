@@ -92,6 +92,31 @@ class RoomDetails ( Resource ) :
         }, 200
     
 
+    # Admin/ Manager required.
+    def put ( self, room_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
+
+        room = Room.query.get ( room_id )
+
+        if not room :
+            return { "error" : "Room not found." }, 404
+        
+        data = request.get_json ()
+
+        room.room_number = data.get ( "room_number", room.room_number )
+        room.default_rent = data.get ( "default_rent", room.default_rent )
+        room.capacity = data.get ( "capacity", room.capacity )
+        # Status should only be updated via occupancy management, so we won't allow direct updates here.
+
+        db.session.commit ()
+
+        return { "message" : f"Room { room.room_number } updated successfully." }, 200
+    
+
 
 
     # Admin required.
