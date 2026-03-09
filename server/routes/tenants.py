@@ -24,6 +24,28 @@ class TenantsList ( Resource ) :
 
         tenants = Tenant.query.all()
 
+        # separate all tenants with active occupancies ( where end_date is null ) and those without active occupancies. This way we can show active tenants with their room details at the top and past tenants at the bottom.
+
+        active_tenants = []
+        past_tenants = []
+
+        for t in tenants :
+            if t.occupancies and any ( o.end_date is None for o in t.occupancies ) :
+                active_tenants.append ( t )
+            else :
+                past_tenants.append ( t )
+
+        # return [ {
+        #     "id" : t.id,
+        #     "name" : t.name,
+        #     "email" : t.email,
+        #     "phone number" : t.phone,
+        #     "national_id" : t.national_id,
+        #     "room_number" : t.occupancies [ -1 ].room.room_number if t.occupancies else None, # Get the room number of the most recent occupancy if it exists, otherwise return None. Occupancies are ordered by start_date, so the most recent occupancy will be the last one in the list. [-1] takes the last element of the list.
+        #     "occupancy_start_date" : str (t.occupancies [ -1 ].start_date) if t.occupancies else None,
+        #     "created_at" : str (t.created_at)
+        # } for t in active_tenants ], 200
+        
         return [ {
             "id" : t.id,
             "name" : t.name,
@@ -33,8 +55,16 @@ class TenantsList ( Resource ) :
             "room_number" : t.occupancies [ -1 ].room.room_number if t.occupancies else None, # Get the room number of the most recent occupancy if it exists, otherwise return None. Occupancies are ordered by start_date, so the most recent occupancy will be the last one in the list. [-1] takes the last element of the list.
             "occupancy_start_date" : str (t.occupancies [ -1 ].start_date) if t.occupancies else None,
             "created_at" : str (t.created_at)
-        } for t in tenants ], 200
-
+        } for t in active_tenants ] + ["--- Past Tenants below ---"] + [ {
+            "id" : t.id,
+            "name" : t.name,
+            "email" : t.email,
+            "phone number" : t.phone,
+            "national_id" : t.national_id,
+            "room_number" : t.occupancies [ -1 ].room.room_number if t.occupancies else None,
+            "occupancy_start_date" : str (t.occupancies [ -1 ].start_date) if t.occupancies else None,
+            "created_at" : str (t.created_at)
+        } for t in past_tenants ], 200
 
 
 
@@ -473,6 +503,7 @@ class TenantLedger ( Resource ) :
                 ledger.append ( {
                     "occupancy_id" : o.id,
                     "tenant_name" : tenant.name,
+                    "room_number" : o.room.room_number,
                     "type" : "charge",
                     "monthly_charge_id" : c.id,
                     "amount" : int (c.rent_amount + c.water_bill),
@@ -483,6 +514,7 @@ class TenantLedger ( Resource ) :
                 ledger.append ( {
                     "occupancy_id" : o.id,
                     "tenant_name" : tenant.name,
+                    "room_number" : o.room.room_number,
                     "type" : "payment",
                     "payment_id" : p.id,
                     "monthly_charge_id" : p.monthly_charge_id,

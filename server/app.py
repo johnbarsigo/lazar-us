@@ -16,7 +16,7 @@ from routes.tenants import CreateTenantOccupancy, TenantsList, TenantDetails, Te
 from routes.billings import GenerateMonthlyBillings, BillingsList, BillingDetails
 from routes.payments import PaymentsList, RecordPayment, PaymentDetails
 from routes.reports import GenerateArrearsReport
-from routes.occupancies import Occupancies, OccupancyDetails
+from routes.occupancies import Occupancies, OccupancyDetails, EndOccupancy
 
 
 def create_app ( ) :
@@ -71,6 +71,7 @@ def create_app ( ) :
     # OCCUPANCIES
     api.add_resource ( Occupancies, "/api/occupancies" )
     api.add_resource ( OccupancyDetails, "/api/occupancies/<int:occupancy_id>" )
+    api.add_resource ( EndOccupancy, "/api/occupancies/<int:occupancy_id>/end")
 
     # BILLINGS
     api.add_resource ( GenerateMonthlyBillings, "/api/billings/generate" )
@@ -99,7 +100,6 @@ if __name__ == "__main__" :
 # Separate all tenants with active tenants, where room_id is NOT NULL
 # Delete Occupancy does not delete the associated tenant, good
 # Delete Tenant should end occupancy; set end_date, set Room as available
-# Fix validation when creating/ updating user details. OR instead of AND, as fixed in TenantDetails
 # Keep DEL tenant ( commented out ) but find a way to keep occupancy records when deleting the tenant, which can only be done after deleting occupancy ( conundrum )
-# Change month in MonthlyCharge to month number (1-12) instead of month name, to simplify filtering and avoid issues with different languages/ spellings. Can convert to month name in frontend if needed. Validate entering month number between 1 and 12. Update in seed.py to seed in Integer format. Update in GenerateMonthlyBillings to filter by month number instead of name.
-# Prevent Room deletion when occupied. room_status = "occupied" should prevent deletion. Can add validation in delete method in RoomDetails to check room status before allowing deletion. Return error message if trying to delete occupied room.
+# month in MonthlyCharge -Validate entering month number between 1 and 12 Can convert to month name in frontend if needed.
+# FIX DOUBLE BILLING IF USER SWITCHED ROOMS WITHIN THE SAME MONTH, which creates 2 occupancies in the same month, and thus 2 billings. Can add a check in the GenerateMonthlyBillings endpoint to check if there are existing billings for the same month and year before creating a new one. We can also add a unique constraint on the MonthlyCharge model to prevent duplicate billings for the same occupancy and month. =================billings.py line 44

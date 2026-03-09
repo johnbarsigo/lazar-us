@@ -258,3 +258,15 @@ class UserDetails ( Resource ) :
         except Exception as e :
             db.session.rollback ()
             return { "error" : f"Failed to delete user : { str (e) }" }, 500
+
+
+class UserLogout ( Resource ) :
+    # /api/users/logout
+
+    # Logout user by blacklisting the token. This will require implementing a token blacklist in the authentication system to invalidate tokens upon logout.
+
+    def post ( self ) :
+
+        # Implement token blacklisting.
+
+        return { "message" : "Logged out successfully." }, 200

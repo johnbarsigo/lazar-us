@@ -133,3 +133,30 @@ class OccupancyDetails ( Resource ) :
         return { "message" : "Occupancy deleted successfully." }, 200
     
 
+
+class EndOccupancy ( Resource ) :
+    # /api/occupancies/<int:occupancy_id>/end
+
+    # Admin/ Manager required.
+
+    def post ( self, occupancy_id ) :
+
+        manager = require_manager ()
+
+        if not manager :
+            return { "error" : "Unauthorized. Manager access required." }, 403
+        
+        try :
+
+            occupancy = Occupancy.query.get ( occupancy_id )
+
+            if not occupancy :
+                return { "error" : "Occupancy not found." }, 404
+            
+            occupancy.end_date = datetime.utcnow().date()
+            occupancy.room.status = "available"
+            db.session.commit()
+            return { "message" : f"Occupancy id: {occupancy.id} , tenant: {occupancy.tenant.name}, ended successfully,  on {occupancy.end_date}." }, 200
+        
+        except Exception as e :
+            return { "error" : str (e) }, 500
