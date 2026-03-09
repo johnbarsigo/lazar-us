@@ -503,6 +503,7 @@ class TenantLedger ( Resource ) :
                 ledger.append ( {
                     "occupancy_id" : o.id,
                     "tenant_name" : tenant.name,
+                    "room_number" : o.room.room_number,
                     "type" : "charge",
                     "monthly_charge_id" : c.id,
                     "amount" : int (c.rent_amount + c.water_bill),
@@ -513,6 +514,7 @@ class TenantLedger ( Resource ) :
                 ledger.append ( {
                     "occupancy_id" : o.id,
                     "tenant_name" : tenant.name,
+                    "room_number" : o.room.room_number,
                     "type" : "payment",
                     "payment_id" : p.id,
                     "monthly_charge_id" : p.monthly_charge_id,
