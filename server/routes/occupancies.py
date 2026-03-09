@@ -156,7 +156,7 @@ class EndOccupancy ( Resource ) :
             occupancy.end_date = datetime.utcnow().date()
             occupancy.room.status = "available"
             db.session.commit()
-            return { "message" : f"Occupancy id {occupancy.id} , tenant {occupancy.tenant.name}, ended successfully,  on {occupancy.end_date}." }, 200
+            return { "message" : f"Occupancy id: {occupancy.id} , tenant: {occupancy.tenant.name}, ended successfully,  on {occupancy.end_date}." }, 200
         
         except Exception as e :
             return { "error" : str (e) }, 500

@@ -16,7 +16,7 @@ from routes.tenants import CreateTenantOccupancy, TenantsList, TenantDetails, Te
 from routes.billings import GenerateMonthlyBillings, BillingsList, BillingDetails
 from routes.payments import PaymentsList, RecordPayment, PaymentDetails
 from routes.reports import GenerateArrearsReport
-from routes.occupancies import Occupancies, OccupancyDetails
+from routes.occupancies import Occupancies, OccupancyDetails, EndOccupancy
 
 
 def create_app ( ) :
@@ -71,6 +71,7 @@ def create_app ( ) :
     # OCCUPANCIES
     api.add_resource ( Occupancies, "/api/occupancies" )
     api.add_resource ( OccupancyDetails, "/api/occupancies/<int:occupancy_id>" )
+    api.add_resource ( EndOccupancy, "/api/occupancies/<int:occupancy_id>/end")
 
     # BILLINGS
     api.add_resource ( GenerateMonthlyBillings, "/api/billings/generate" )
