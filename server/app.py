@@ -102,4 +102,4 @@ if __name__ == "__main__" :
 # Delete Tenant should end occupancy; set end_date, set Room as available
 # Keep DEL tenant ( commented out ) but find a way to keep occupancy records when deleting the tenant, which can only be done after deleting occupancy ( conundrum )
 # month in MonthlyCharge -Validate entering month number between 1 and 12 Can convert to month name in frontend if needed.
-
+# FIX DOUBLE BILLING IF USER SWITCHED ROOMS WITHIN THE SAME MONTH, which creates 2 occupancies in the same month, and thus 2 billings. Can add a check in the GenerateMonthlyBillings endpoint to check if there are existing billings for the same month and year before creating a new one. We can also add a unique constraint on the MonthlyCharge model to prevent duplicate billings for the same occupancy and month. =================billings.py line 44

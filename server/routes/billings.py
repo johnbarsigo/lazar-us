@@ -41,6 +41,14 @@ class GenerateMonthlyBillings ( Resource ) :
             if existing :
                 continue
 
+            # # Add check to prevent double billing if user switched rooms within the same month, which creates 2 occupancies in the same month, and thus 2 billings. Can add a check in the GenerateMonthlyBillings endpoint to check if there are existing billings for the same month and year before creating a new one. We can also add a unique constraint on the MonthlyCharge model to prevent duplicate billings for the same occupancy and month.
+            # if Occupancy.query.filter (
+            #     Occupancy.tenant_id == o.tenant_id,
+            #     Occupancy.start_date <= date ( year, month, 1 ),
+            #     ( Occupancy.end_date == None ) | ( Occupancy.end_date >= date ( year, month, 1 ) )
+            # ).count() > 1 :
+            #     continue
+
             charge = MonthlyCharge (
                 occupancy_id = o.id,
                 month = month,
