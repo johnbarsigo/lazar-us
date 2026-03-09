@@ -99,7 +99,6 @@ if __name__ == "__main__" :
 # Separate all tenants with active tenants, where room_id is NOT NULL
 # Delete Occupancy does not delete the associated tenant, good
 # Delete Tenant should end occupancy; set end_date, set Room as available
-# Fix validation when creating/ updating user details. OR instead of AND, as fixed in TenantDetails
 # Keep DEL tenant ( commented out ) but find a way to keep occupancy records when deleting the tenant, which can only be done after deleting occupancy ( conundrum )
-# Change month in MonthlyCharge to month number (1-12) instead of month name, to simplify filtering and avoid issues with different languages/ spellings. Can convert to month name in frontend if needed. Validate entering month number between 1 and 12. Update in seed.py to seed in Integer format. Update in GenerateMonthlyBillings to filter by month number instead of name.
+# month in MonthlyCharge -Validate entering month number between 1 and 12 Can convert to month name in frontend if needed.
 
