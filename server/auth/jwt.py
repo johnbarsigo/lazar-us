@@ -167,7 +167,7 @@
 import jwt
 from datetime import datetime, timedelta
 from flask import current_app
-from models import User
+from models import User, TokenBlacklist
 
 DEFAULT_SECRET_KEY = "e7ba32d2feaa467398beb846112494c5"
 
@@ -204,6 +204,12 @@ def decode_token (token) :
         return None
     
     except jwt.InvalidTokenError :
+        return None
+    
+    # Logout functionality: Check if token is blacklisted (i.e. user logged out before token expiration)
+    blacklisted = TokenBlacklist.query.filter_by(token=token).first()
+    
+    if blacklisted:
         return None
     
 
