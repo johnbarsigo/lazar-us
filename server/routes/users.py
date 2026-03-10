@@ -260,13 +260,20 @@ class UserDetails ( Resource ) :
             return { "error" : f"Failed to delete user : { str (e) }" }, 500
 
 
-class UserLogout ( Resource ) :
-    # /api/users/logout
+class UserLogout(Resource):
 
-    # Logout user by blacklisting the token. This will require implementing a token blacklist in the authentication system to invalidate tokens upon logout.
+    def post(self):
 
-    def post ( self ) :
+        bearer = request.headers.get("Authorization")
 
-        # Implement token blacklisting.
+        if not bearer or not bearer.startswith("Bearer "):
+            return {"error": "Token missing"}, 401
 
-        return { "message" : "Logged out successfully." }, 200
+        token = bearer.split(" ")[1]
+
+        blacklist = TokenBlacklist(token=token)
+
+        db.session.add(blacklist)
+        db.session.commit()
+
+        return {"message": "Logged out successfully"}, 200

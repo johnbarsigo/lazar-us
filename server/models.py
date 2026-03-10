@@ -147,3 +147,15 @@ class Notification ( db.Model ) :
     message = db.Column ( db.String ( 255 ) )
     sent_at = db.Column ( db.DateTime )
     status = db.Column ( db.Enum ( "pending", "sent", "failed", name = "notification_status" ) )
+
+
+# Model to handle user logout by blacklisting JWT tokens. This will allow us to invalidate tokens upon logout, preventing their further use until they expire.
+
+class TokenBlacklist ( db.Model ) :
+
+    __tablename__ = "token_blacklist"
+
+    id = db.Column ( db.Integer, primary_key = True )
+    # jti = db.Column ( db.String ( 255 ), unique = True, nullable = False ) # JWT ID, a unique identifier for each token
+    token = db.Column(db.Text, nullable=False)
+    created_at = db.Column ( db.DateTime, default = datetime.utcnow )
