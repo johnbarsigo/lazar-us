@@ -56,6 +56,43 @@ class GenerateIncomeReport ( Resource ) :
     # @token_required
     # @admin_required
 
+    # def get ( self ) :
+
+    #     admin = require_admin ()
+
+    #     data = request.get_json ()
+
+    #     if not admin :
+    #         return { "error" : "Unauthorized. Admin access required." }, 403
+
+    #     month = data [ "month" ]
+    #     year = data [ "year" ]
+
+    #     query = db.session.query (
+    #         func.sum ( Payment.amount ).label ( "total_income" )
+    #     ).join ( MonthlyCharge, MonthlyCharge.id == Payment.monthly_charge_id )
+
+    #     if month :
+    #         try :
+    #             month = int ( month )
+    #             query = query.filter ( func.extract ( "month", MonthlyCharge.charge_date ) == month )
+    #         except ValueError :
+    #             return { "error" : "Month must be an integer." }, 400
+
+    #     if year :
+    #         try :
+    #             year = int ( year )
+    #             query = query.filter ( func.extract ( "year", MonthlyCharge.charge_date ) == year )
+    #         except ValueError :
+    #             return { "error" : "Year must be an integer." }, 400
+
+    #     results = query.all()
+
+    #     total_income = results[0].total_income or 0
+
+    #     return { "total_income" : total_income }
+
+
     def get ( self ) :
 
         admin = require_admin ()
@@ -65,59 +102,27 @@ class GenerateIncomeReport ( Resource ) :
         if not admin :
             return { "error" : "Unauthorized. Admin access required." }, 403
 
+        # month = request.args.get ( "month" )
+        # year = request.args.get ( "year" )
+        
         month = data [ "month" ]
         year = data [ "year" ]
 
-        query = db.session.query (
+        if not month or not year :
+            return { "error" : "Month and year query parameters are required." }, 400
+
+        try :
+            month = int ( month )
+            year = int ( year )
+        except ValueError :
+            return { "error" : "Month and year must be integers." }, 400
+
+        results = db.session.query (
             func.sum ( Payment.amount ).label ( "total_income" )
-        ).join ( MonthlyCharge, MonthlyCharge.id == Payment.monthly_charge_id )
-
-        if month :
-            try :
-                month = int ( month )
-                query = query.filter ( func.extract ( "month", MonthlyCharge.charge_date ) == month )
-            except ValueError :
-                return { "error" : "Month must be an integer." }, 400
-
-        if year :
-            try :
-                year = int ( year )
-                query = query.filter ( func.extract ( "year", MonthlyCharge.charge_date ) == year )
-            except ValueError :
-                return { "error" : "Year must be an integer." }, 400
-
-        results = query.all()
+        ).join ( MonthlyCharge, MonthlyCharge.id == Payment.monthly_charge_id ) \
+        .filter ( func.extract ( "month", MonthlyCharge.charge_date ) == month ) \
+        .filter ( func.extract ( "year", MonthlyCharge.charge_date ) == year ).all()
 
         total_income = results[0].total_income or 0
 
         return { "total_income" : total_income }
-
-
-    # def get ( self ) :
-
-    #     admin = require_admin ()
-
-    #     if not admin :
-    #         return { "error" : "Unauthorized. Admin access required." }, 403
-
-    #     month = request.args.get ( "month" )
-    #     year = request.args.get ( "year" )
-
-    #     if not month or not year :
-    #         return { "error" : "Month and year query parameters are required." }, 400
-
-    #     try :
-    #         month = int ( month )
-    #         year = int ( year )
-    #     except ValueError :
-    #         return { "error" : "Month and year must be integers." }, 400
-
-    #     results = db.session.query (
-    #         func.sum ( Payment.amount ).label ( "total_income" )
-    #     ).join ( MonthlyCharge, MonthlyCharge.id == Payment.monthly_charge_id ) \
-    #     .filter ( func.extract ( "month", MonthlyCharge.charge_date ) == month ) \
-    #     .filter ( func.extract ( "year", MonthlyCharge.charge_date ) == year ).all()
-
-    #     total_income = results[0].total_income or 0
-
-    #     return { "total_income" : total_income }
