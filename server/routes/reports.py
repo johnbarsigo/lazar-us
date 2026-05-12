@@ -60,11 +60,13 @@ class GenerateIncomeReport ( Resource ) :
 
         admin = require_admin ()
 
+        data = request.get_json ()
+
         if not admin :
             return { "error" : "Unauthorized. Admin access required." }, 403
 
-        month = request.args.get ( "month" )
-        year = request.args.get ( "year" )
+        month = data [ "month" ]
+        year = data [ "year" ]
 
         query = db.session.query (
             func.sum ( Payment.amount ).label ( "total_income" )

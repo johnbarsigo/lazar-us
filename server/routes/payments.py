@@ -13,6 +13,7 @@ class PaymentsList ( Resource ) :
     # Admin/ Manager required.
     # @token_required
     # @manager_required
+    # api/payments
     def get ( self ) :
 
         manager = require_manager ()
