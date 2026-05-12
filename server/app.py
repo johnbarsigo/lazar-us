@@ -15,7 +15,7 @@ from routes.rooms import RoomsList, RoomDetails
 from routes.tenants import CreateTenantOccupancy, TenantsList, TenantDetails, TenantLedger, TenantOccupancies
 from routes.billings import GenerateMonthlyBillings, BillingsList, BillingDetails
 from routes.payments import PaymentsList, RecordPayment, PaymentDetails
-from routes.reports import GenerateArrearsReport
+from routes.reports import GenerateArrearsReport, GenerateIncomeReport
 from routes.occupancies import Occupancies, OccupancyDetails, EndOccupancy
 
 
@@ -85,7 +85,7 @@ def create_app ( ) :
 
     # REPORTS
     api.add_resource ( GenerateArrearsReport, "/api/reports/arrears" )
-   
+    api.add_resource ( GenerateIncomeReport, "/api/reports/income" )
 
     return app
 
