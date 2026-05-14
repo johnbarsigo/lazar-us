@@ -34,10 +34,15 @@ class RoomsList ( Resource ) :
         } for r in rooms ], 200
 
 
-            # Admin required.
+    # Admin required.
     # @token_required
     # @admin_required
     def post ( self ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Unauthorized. Admin access required." }, 403
 
         data = request.get_json ()
 
