@@ -31,39 +31,49 @@ class GenerateMonthlyBillings ( Resource ) :
         # Counter for number of billings created.
         created = 0
 
-        for o in active_occupancies :
-            existing = MonthlyCharge.query.filter_by (
-                occupancy_id = o.id,
-                month = month,
-                year = year
-            ).first()
+        db.session.begin_nested()  # Start a nested transaction
 
-            if existing :
-                continue
+        try :
 
-            # # Add check to prevent double billing if user switched rooms within the same month, which creates 2 occupancies in the same month, and thus 2 billings. Can add a check in the GenerateMonthlyBillings endpoint to check if there are existing billings for the same month and year before creating a new one. We can also add a unique constraint on the MonthlyCharge model to prevent duplicate billings for the same occupancy and month.
-            # if Occupancy.query.filter (
-            #     Occupancy.tenant_id == o.tenant_id,
-            #     Occupancy.start_date <= date ( year, month, 1 ),
-            #     ( Occupancy.end_date == None ) | ( Occupancy.end_date >= date ( year, month, 1 ) )
-            # ).count() > 1 :
-            #     continue
+            for o in active_occupancies :
+                existing = MonthlyCharge.query.filter_by (
+                    occupancy_id = o.id,
+                    month = month,
+                    year = year
+                ).first()
 
-            charge = MonthlyCharge (
-                occupancy_id = o.id,
-                month = month,
-                year = year,
-                rent_amount = o.agreed_rent,
-                water_bill = data.get ( "water_bill", 0 ),
-                charge_date = date.today(),
-                total_amount = o.agreed_rent + data.get ( "water_bill", 0 ),
-                created_at = date.today()
-            )
+                if existing :
+                    continue
 
-            db.session.add ( charge )
-            created +=1
+                # # Add check to prevent double billing if user switched rooms within the same month, which creates 2 occupancies in the same month, and thus 2 billings. Can add a check in the GenerateMonthlyBillings endpoint to check if there are existing billings for the same month and year before creating a new one. We can also add a unique constraint on the MonthlyCharge model to prevent duplicate billings for the same occupancy and month.
+                # if Occupancy.query.filter (
+                #     Occupancy.tenant_id == o.tenant_id,
+                #     Occupancy.start_date <= date ( year, month, 1 ),
+                #     ( Occupancy.end_date == None ) | ( Occupancy.end_date >= date ( year, month, 1 ) )
+                # ).count() > 1 :
+                #     continue
+
+                charge = MonthlyCharge (
+                    occupancy_id = o.id,
+                    month = month,
+                    year = year,
+                    rent_amount = o.agreed_rent,
+                    water_bill = data.get ( "water_bill", 0 ),
+                    charge_date = date.today(),
+                    total_amount = o.agreed_rent + data.get ( "water_bill", 0 ),
+                    created_at = date.today()
+                )
+
+                db.session.add ( charge )
+                created +=1
+            
+            db.session.commit ()
         
-        db.session.commit ()
+        except IntegrityError :
+
+            db.session.rollback ()
+
+            return { "error" : "Integrity error. Possible duplicate billing record." }, 400
 
         return { "message" : f" {created} monthly charges created. " }, 201
 
