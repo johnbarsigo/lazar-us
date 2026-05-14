@@ -10,36 +10,16 @@ This document provides a comprehensive code review of your Flask backend, identi
 
 ### 1.1 Authentication & Authorization Issues
 
-**Problem**: Inconsistent authorization pattern across endpoints
+**FIXED**: Inconsistent authorization pattern across endpoints
 
 - Some endpoints use `require_admin()` and `require_manager()` functions that are not properly verified to return User objects
 - The functions can return `None`, but endpoints don't handle this consistently
 - Authorization happens AFTER data access in some cases
-
-**Example (rooms.py, line 34)**:
-
-```python
-def post(self):
-    data = request.get_json()  # Accessing data before auth check
-    room = Room(...)  # Processing before validation
-```
-
-**Recommendation**:
-
-```python
-def post(self):
-    admin = require_admin()
-    if not admin:
-        return {"error": "Unauthorized"}, 403
-    # Then access and process data
-    data = request.get_json()
-```
-
 ---
 
 ### 1.2 Data Type Inconsistencies
 
-**Problem**: Mixing Numeric and String representations
+**FIXED**: Mixing Numeric and String representations
 
 - Rent amounts stored as Numeric(10,2) but returned as `int()` (losing decimal precision)
 - Example (rooms.py, line 24): `"default_rent" : int(r.default_rent)` - This truncates cents!
