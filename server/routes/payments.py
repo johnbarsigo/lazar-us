@@ -13,6 +13,7 @@ class PaymentsList ( Resource ) :
     # Admin/ Manager required.
     # @token_required
     # @manager_required
+    # api/payments
     def get ( self ) :
 
         manager = require_manager ()
@@ -28,6 +29,7 @@ class PaymentsList ( Resource ) :
             "monthly_charge_id" : p.monthly_charge_id,
             "amount" : int (p.amount),
             "method" : p.method if p.method else None,
+            "status" : p.status,
             "payment_date" : str (p.payment_date)
         } for p in payments ], 200
 

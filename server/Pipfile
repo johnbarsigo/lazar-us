@@ -17,6 +17,7 @@ pyjwt = "*"
 psycopg2-binary = "*"
 flask-jwt-extended = "*"
 python-dotenv = "*"
+dotenv = "*"
 
 [dev-packages]
 
