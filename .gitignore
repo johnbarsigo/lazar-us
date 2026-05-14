@@ -5,6 +5,10 @@ server/migrations/README
 server/migrations/*
 server/CODE_REVIEW.md
 server/MISSING_FEATURES.md
+client
+
+client2/.env
+client2/.env.local
 
 DELIVERY_SUMMARY.md
 INDEX.md
