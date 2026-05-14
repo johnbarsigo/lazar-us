@@ -15,7 +15,6 @@ This document provides a comprehensive code review of your Flask backend, identi
 - Some endpoints use `require_admin()` and `require_manager()` functions that are not properly verified to return User objects
 - The functions can return `None`, but endpoints don't handle this consistently
 - Authorization happens AFTER data access in some cases
----
 
 ### 1.2 Data Type Inconsistencies
 
@@ -40,7 +39,7 @@ This document provides a comprehensive code review of your Flask backend, identi
 
 ### 1.3 Null/None Handling Issues
 
-**Problem**: Inconsistent handling of optional fields
+**FIXED BILLINGS.PY - .END_DATE NOT YET FIXED**: Inconsistent handling of optional fields
 
 - Lines access `.end_date` without null checks: `str(o.end_date) if o.end_date else None`
 - But then use these values in calculations without null guards (billings.py, line 97):

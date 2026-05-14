@@ -94,7 +94,11 @@ class BillingsList ( Resource ) :
             "month" : b.month,
             "year" : b.year,
             "rent_amount" : int (b.rent_amount),
-            "water_bill" : int (b.water_bill)
+            "water_bill" : int (b.water_bill) if b.water_bill else 0,
+            "total_amount" : int (b.total_amount) if b.total_amount else 0,
+            "charge_date" : str (b.charge_date.isoformat()),
+            "created_at" : str (b.created_at.isoformat()),
+            "updated_at" : str (b.updated_at.isoformat()) if b.updated_at else None
         } for b in billings ], 200
 
 
