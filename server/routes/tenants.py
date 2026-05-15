@@ -148,6 +148,13 @@ class CreateTenantOccupancy ( Resource ) :
             # except :
             #     return { "error" : "Invalid date format for start_date. Use ISO format (YYYY-MM-DD)." }, 400
 
+            # Verify agreed_rent is a number and is positive.
+            if not isinstance ( data [ "agreed_rent" ], ( int, float ) ) :
+                return { "error" : "Invalid agreed rent amount. Must be a number." }, 422
+
+            if data [ "agreed_rent" ] <= 0 :
+                return { "error" : "Invalid agreed rent amount." }, 422
+
             # Create tenant instance.
             tenant = Tenant (
                 name = data [ "name" ],
@@ -258,6 +265,13 @@ class CreateTenantOccupancy ( Resource ) :
 
             if room.status != "available" :
                 return { "error" : "Room has been booked." }, 409
+            
+            # Verify agreed_rent is a number and is positive.
+            if not isinstance ( data [ "agreed_rent" ], ( int, float ) ) :
+                return { "error" : "Invalid agreed rent amount. Must be a number." }, 422
+            
+            if data [ "agreed_rent" ] <= 0 :
+                return { "error" : "Invalid agreed_rent amount."}, 422
             
             # Prevent switching to same room.
             if new_room.id == active_occupancy.room_id :
