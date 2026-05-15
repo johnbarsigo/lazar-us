@@ -115,10 +115,10 @@ def end_occupancy():
 
 **Examples**:
 
-- Creating billing with negative `water_bill` accepted (billings.py, line 45)
-- No check if `room_id` exists before assigning to occupancy
-- National ID can be any string (no format validation)
-- Email stored but never validated with regex
+- Creating billing with negative `water_bill` accepted (billings.py, line 45) <!-- FIXED -->
+- No check if `room_id` exists before assigning to occupancy  <!-- FIXED -->
+- National ID can be any string (no format validation) - <!-- CHECK ON THIS -->
+- Email stored but never validated with regex <!-- CHECK ON THIS -->
 - Rent amounts can be negative
 
 **Recommendation**:

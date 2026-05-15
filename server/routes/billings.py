@@ -45,6 +45,9 @@ class GenerateMonthlyBillings ( Resource ) :
                 if existing :
                     continue
 
+                if data [ "water_bill" ] < 0 :
+                    return { "error" : "Invalid water bill" }, 422
+
                 # # Add check to prevent double billing if user switched rooms within the same month, which creates 2 occupancies in the same month, and thus 2 billings. Can add a check in the GenerateMonthlyBillings endpoint to check if there are existing billings for the same month and year before creating a new one. We can also add a unique constraint on the MonthlyCharge model to prevent duplicate billings for the same occupancy and month.
                 # if Occupancy.query.filter (
                 #     Occupancy.tenant_id == o.tenant_id,
