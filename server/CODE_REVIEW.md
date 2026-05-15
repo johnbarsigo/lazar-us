@@ -104,7 +104,7 @@ def end_occupancy():
     occupancy.end_date = date.today()
     occupancy.room.status = "available"
     db.session.commit()
-    # Don't modify tenant_id
+    # Don't modify tenant_id ------------------------------------ CHECK ALTERNATIVES--------
 ```
 
 ---

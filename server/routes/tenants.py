@@ -134,8 +134,14 @@ class CreateTenantOccupancy ( Resource ) :
             
             # Verify room availability
             room = Room.query.get ( data [ "room_id" ] )
-            if not room or room.status != "available" :
-                return { "error" : "Room not available."}, 409
+            # if not room or room.status != "available" :
+            #     return { "error" : "Room not available."}, 409
+
+            if not room :
+                return { "error" : "Not an existing room" }, 409
+
+            if room.status != "available" :
+                return { "error" : "Room has been booked." }, 409
 
             # try :
             #     start_date = datetime.fromisoformat ( data [ "start_date" ] ).date()
@@ -244,8 +250,14 @@ class CreateTenantOccupancy ( Resource ) :
             
             # Verify room availability
             new_room = Room.query.get ( data [ "room_id" ] )
-            if not new_room or new_room.status != "available" :
-                return { "error" : "Room not available."}, 409
+            # if not new_room or new_room.status != "available" :
+            #     return { "error" : "Room not available."}, 409
+            
+            if not room :
+                return { "error" : "Not an existing room" }, 409
+
+            if room.status != "available" :
+                return { "error" : "Room has been booked." }, 409
             
             # Prevent switching to same room.
             if new_room.id == active_occupancy.room_id :
