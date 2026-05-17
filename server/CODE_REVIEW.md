@@ -119,7 +119,7 @@ def end_occupancy():
 - No check if `room_id` exists before assigning to occupancy  <!-- FIXED -->
 - National ID can be any string (no format validation) - <!-- CHECK ON THIS -->
 - Email stored but never validated with regex <!-- CHECK ON THIS -->
-- Rent amounts can be negative
+- Rent amounts can be negative <!-- FIXED -->
 
 **Recommendation**:
 
@@ -165,6 +165,7 @@ from datetime import datetime
 def to_iso(dt):
     return dt.isoformat() if dt else None
 ```
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 
 ---
 
@@ -187,6 +188,7 @@ tenants = Tenant.query.outerjoin(Occupancy).options(
     joinedload(Tenant.occupancies)
 ).all()
 ```
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 
 ---
 
@@ -212,7 +214,7 @@ class AppException(Exception):
 def handle_error(e):
     return {"error": e.message}, e.status_code
 ```
-
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 ---
 
 ## 2. SECURITY VULNERABILITIES
@@ -221,13 +223,13 @@ def handle_error(e):
 
 - CORS allows only localhost:3000, but hardcoded
 - Should use environment variables
-
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 ### 2.2 JWT Token Issues
 
 - No token expiration verification
 - No blacklist check for logout
 - Token stored in localStorage (XSS vulnerable)
-
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 ### 2.3 Password Security
 
 - Using `generate_password_hash` (good!)
@@ -238,7 +240,7 @@ def handle_error(e):
 
 - No tracking of who modified what and when
 - Critical for hostel management (rent changes, refunds)
-
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 ---
 
 ## 3. MISSING FEATURES & REQUIREMENTS
@@ -248,28 +250,28 @@ def handle_error(e):
 - Model has `damages_or_dues` and `damages_reason` fields
 - No endpoints to record/retrieve damages
 - No calculation in billings
-
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 ### 3.2 Tenant Ledger
 
 - `TenantLedger` endpoint defined but incomplete
 - Should show:
   - All payments received
   - All charges billed
-  - Running balance
+  - Running balance <!-- SHOWS -->
   - Payment history
-
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 ### 3.3 Room Maintenance
 
 - No way to mark rooms as "maintenance" status
 - No maintenance request tracking
 - No maintenance cost allocation
-
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 ### 3.4 Payment Reconciliation
 
 - No reconciliation endpoint
 - No way to match M-Pesa deposits to payments
 - No outstanding payment alerts
-
+<!-- ------------------REVISIT TO INCORPORATE------------------ -->
 ### 3.5 Multi-month Billing Adjustments
 
 - Can't retroactively adjust bills
