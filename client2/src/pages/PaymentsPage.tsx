@@ -3,10 +3,22 @@ import { Plus } from 'lucide-react';
 import { paymentsAPI } from '../api/client';
 import { Payment } from '../types';
 
+const initialPaymentForm = {
+  monthly_charge_id: 0,
+  amount: 0,
+  method: 'mpesa' as 'mpesa' | 'cash' | 'bank',
+  payment_date: new Date().toISOString().slice(0, 10),
+  mpesa_receipt: '',
+};
+
 const PaymentsPage: React.FC = () => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'completed' | 'failed'>('all');
+  const [showRecordModal, setShowRecordModal] = useState(false);
+  const [paymentForm, setPaymentForm] = useState(initialPaymentForm);
+  const [recordingPayment, setRecordingPayment] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPayments();
@@ -36,6 +48,37 @@ const PaymentsPage: React.FC = () => {
       .reduce((sum, p) => sum + parseFloat(p.amount.toString()), 0),
   };
 
+  const handlePaymentInput = (field: string, value: string | number) => {
+    setPaymentForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleRecordPayment = async () => {
+    setRecordingPayment(true);
+    setStatusMessage(null);
+
+    try {
+      await paymentsAPI.record({
+        monthly_charge_id: paymentForm.monthly_charge_id,
+        amount: paymentForm.amount,
+        method: paymentForm.method,
+        payment_date: paymentForm.payment_date,
+        mpesa_receipt: paymentForm.mpesa_receipt || undefined,
+      });
+      setStatusMessage('Payment recorded successfully.');
+      setShowRecordModal(false);
+      setPaymentForm(initialPaymentForm);
+      fetchPayments();
+    } catch (err) {
+      console.error('Failed to record payment', err);
+      setStatusMessage('Could not record payment.');
+    } finally {
+      setRecordingPayment(false);
+    }
+  };
+
   const getStatusColor = (status: Payment['status']) => {
     switch (status) {
       case 'completed':
@@ -53,7 +96,10 @@ const PaymentsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Payments</h1>
-        <button className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center">
+        <button
+          onClick={() => setShowRecordModal(true)}
+          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
+        >
           <Plus size={20} />
           Record Payment
         </button>
@@ -80,6 +126,12 @@ const PaymentsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {statusMessage && (
+        <div className="card text-sm text-slate-700 dark:text-slate-200">
+          {statusMessage}
+        </div>
+      )}
 
       {/* Filter */}
       <div className="card">
@@ -141,6 +193,97 @@ const PaymentsPage: React.FC = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {showRecordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-6">
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Record Payment</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Enter payment details to add a new transaction.</p>
+              </div>
+              <button
+                onClick={() => setShowRecordModal(false)}
+                className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="label">Monthly Charge ID</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={paymentForm.monthly_charge_id}
+                  onChange={(e) => handlePaymentInput('monthly_charge_id', Number(e.target.value))}
+                  className="input-field"
+                  placeholder="Enter billing ID"
+                />
+              </div>
+              <div>
+                <label className="label">Amount</label>
+                <input
+                  type="number"
+                  min={0}
+                  step={0.01}
+                  value={paymentForm.amount}
+                  onChange={(e) => handlePaymentInput('amount', Number(e.target.value))}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="label">Method</label>
+                <select
+                  value={paymentForm.method}
+                  onChange={(e) => handlePaymentInput('method', e.target.value)}
+                  className="input-field"
+                >
+                  <option value="mpesa">Mpesa</option>
+                  <option value="cash">Cash</option>
+                  <option value="bank">Bank</option>
+                </select>
+              </div>
+              <div>
+                <label className="label">Payment Date</label>
+                <input
+                  type="date"
+                  value={paymentForm.payment_date}
+                  onChange={(e) => handlePaymentInput('payment_date', e.target.value)}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="label">Receipt Reference</label>
+                <input
+                  type="text"
+                  value={paymentForm.mpesa_receipt}
+                  onChange={(e) => handlePaymentInput('mpesa_receipt', e.target.value)}
+                  className="input-field"
+                  placeholder="Optional receipt code"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col sm:flex-row items-center gap-3 justify-end">
+              <button
+                onClick={() => setShowRecordModal(false)}
+                className="btn-secondary w-full sm:w-auto"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRecordPayment}
+                disabled={recordingPayment}
+                className="btn-primary w-full sm:w-auto"
+              >
+                {recordingPayment ? 'Recording...' : 'Record Payment'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

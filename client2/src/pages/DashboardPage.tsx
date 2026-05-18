@@ -25,15 +25,15 @@ const DashboardPage: React.FC = () => {
 
   const quickActions = [
     {
-      title: 'New Tenant',
-      description: 'Add a new tenant',
-      action: () => navigate('/tenants/new'),
+      title: 'Manage Tenants',
+      description: 'View and add tenants',
+      action: () => navigate('/tenants'),
       color: 'from-blue-500 to-blue-600',
     },
     {
       title: 'Generate Billings',
       description: 'Create monthly charges',
-      action: () => navigate('/billings/generate'),
+      action: () => navigate('/billings'),
       color: 'from-green-500 to-green-600',
     },
     {

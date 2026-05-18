@@ -3,11 +3,21 @@ import { Plus, Search } from 'lucide-react';
 import { roomsAPI } from '../api/client';
 import { Room } from '../types';
 
+const initialRoomForm = {
+  room_number: '',
+  capacity: 1,
+  default_rent: 0,
+};
+
 const RoomsPage: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'available' | 'occupied'>('all');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [roomForm, setRoomForm] = useState(initialRoomForm);
+  const [creatingRoom, setCreatingRoom] = useState(false);
+  const [roomMessage, setRoomMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchRooms();
@@ -34,15 +44,52 @@ const RoomsPage: React.FC = () => {
   const availableCount = rooms.filter((r) => r.status === 'available').length;
   const occupiedCount = rooms.filter((r) => r.status === 'occupied').length;
 
+  const handleRoomInput = (field: string, value: string | number) => {
+    setRoomForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleCreateRoom = async () => {
+    setCreatingRoom(true);
+    setRoomMessage(null);
+    try {
+      await roomsAPI.create({
+        room_number: roomForm.room_number,
+        capacity: roomForm.capacity,
+        default_rent: roomForm.default_rent,
+      });
+      setRoomMessage('Room created successfully.');
+      setShowCreateModal(false);
+      setRoomForm(initialRoomForm);
+      fetchRooms();
+    } catch (err) {
+      console.error('Failed to create room', err);
+      setRoomMessage('Could not create room.');
+    } finally {
+      setCreatingRoom(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Rooms</h1>
-        <button className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center">
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
+        >
           <Plus size={20} />
           New Room
         </button>
       </div>
+
+      {roomMessage && (
+        <div className="card text-sm text-slate-700 dark:text-slate-200">
+          {roomMessage}
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -121,6 +168,76 @@ const RoomsPage: React.FC = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-6">
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Add New Room</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Create a room and set its default rent.</p>
+              </div>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="label">Room Number</label>
+                <input
+                  type="text"
+                  value={roomForm.room_number}
+                  onChange={(e) => handleRoomInput('room_number', e.target.value)}
+                  className="input-field"
+                  placeholder="e.g. 101"
+                />
+              </div>
+              <div>
+                <label className="label">Capacity</label>
+                <input
+                  type="number"
+                  min={1}
+                  value={roomForm.capacity}
+                  onChange={(e) => handleRoomInput('capacity', Number(e.target.value))}
+                  className="input-field"
+                />
+              </div>
+              <div>
+                <label className="label">Default Rent</label>
+                <input
+                  type="number"
+                  min={0}
+                  step={0.01}
+                  value={roomForm.default_rent}
+                  onChange={(e) => handleRoomInput('default_rent', Number(e.target.value))}
+                  className="input-field"
+                  placeholder="e.g. 6000"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col sm:flex-row items-center gap-3 justify-end">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="btn-secondary w-full sm:w-auto"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCreateRoom}
+                disabled={creatingRoom}
+                className="btn-primary w-full sm:w-auto"
+              >
+                {creatingRoom ? 'Saving...' : 'Create Room'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
