@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, DollarSign, AlertCircle } from 'lucide-react';
+import { Plus, AlertCircle } from 'lucide-react';
 import { billingsAPI } from '../api/client';
 import { MonthlyCharge } from '../types';
 
@@ -8,10 +8,13 @@ const BillingsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [filterMonth, setFilterMonth] = useState(new Date().getMonth() + 1);
   const [filterYear, setFilterYear] = useState(new Date().getFullYear());
+  const [waterBill, setWaterBill] = useState<number>(0);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBillings();
-  }, [filterMonth, filterYear]);
+  }, []);
 
   const fetchBillings = async () => {
     try {
@@ -32,37 +35,66 @@ const BillingsPage: React.FC = () => {
   const totalWater = filteredBillings.reduce((sum, b) => sum + parseFloat(b.water_bill.toString()), 0);
   const totalBilling = totalRent + totalWater;
 
+  const handleGenerateBillings = async () => {
+    setIsGenerating(true);
+    setStatusMessage(null);
+
+    try {
+      const response = await billingsAPI.generate({
+        month: filterMonth,
+        year: filterYear,
+        water_bill: waterBill,
+      });
+
+      setStatusMessage(response.data?.message || 'Monthly billings generated successfully.');
+      setWaterBill(0);
+      await fetchBillings();
+    } catch (err) {
+      console.error('Failed to generate billings', err);
+      setStatusMessage('Failed to generate billings.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Billings</h1>
-        <button className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center">
+        <button
+          onClick={handleGenerateBillings}
+          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
+        >
           <Plus size={20} />
           Generate Billings
         </button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="card">
-          <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Rent</div>
-          <div className="text-3xl font-bold">KSh {totalRent.toLocaleString()}</div>
+      {statusMessage && (
+        <div className="card text-sm text-slate-700 dark:text-slate-200">
+          {statusMessage}
         </div>
-        <div className="card">
-          <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Water Bill</div>
-          <div className="text-3xl font-bold">KSh {totalWater.toLocaleString()}</div>
-        </div>
-        <div className="card bg-primary-50 dark:bg-primary-900/20">
-          <div className="text-sm text-primary-600 dark:text-primary-400 mb-1">Total Billings</div>
-          <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
-            KSh {totalBilling.toLocaleString()}
-          </div>
-        </div>
-      </div>
+      )}
 
-      {/* Filters */}
-      <div className="card space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="card space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Generate Monthly Billings</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Choose the target month, year, and water bill amount before generating charges.
+            </p>
+          </div>
+          <button
+            onClick={handleGenerateBillings}
+            disabled={isGenerating}
+            className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
+          >
+            <Plus size={20} />
+            {isGenerating ? 'Generating...' : 'Generate Billings'}
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="label">Month</label>
             <select
@@ -90,6 +122,36 @@ const BillingsPage: React.FC = () => {
                 </option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="label">Water Bill</label>
+            <input
+              type="number"
+              min={0}
+              step={0.01}
+              value={waterBill}
+              onChange={(e) => setWaterBill(parseFloat(e.target.value) || 0)}
+              className="input-field"
+              placeholder="Enter water bill"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="card">
+          <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Rent</div>
+          <div className="text-3xl font-bold">KSh {totalRent.toLocaleString()}</div>
+        </div>
+        <div className="card">
+          <div className="text-sm text-slate-600 dark:text-slate-400 mb-1">Total Water Bill</div>
+          <div className="text-3xl font-bold">KSh {totalWater.toLocaleString()}</div>
+        </div>
+        <div className="card bg-primary-50 dark:bg-primary-900/20">
+          <div className="text-sm text-primary-600 dark:text-primary-400 mb-1">Total Billings</div>
+          <div className="text-3xl font-bold text-primary-600 dark:text-primary-400">
+            KSh {totalBilling.toLocaleString()}
           </div>
         </div>
       </div>
