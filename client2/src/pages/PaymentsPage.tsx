@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Filter } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { paymentsAPI } from '../api/client';
 import { Payment } from '../types';
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, StatusIcon } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { roomsAPI } from '../api/client';
 import { Room } from '../types';
 

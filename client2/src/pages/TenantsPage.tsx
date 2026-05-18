@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, MapPin, Users } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { tenantsAPI } from '../api/client';
 import { Tenant } from '../types';
 
@@ -102,6 +102,18 @@ const TenantsPage: React.FC = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        {/* Minimal placeholder modal to avoid unused state until full modal is implemented */}
+        {showModal && (
+          <div className="modal fixed inset-0 flex items-center justify-center bg-black/40">
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-lg w-full max-w-md">
+              <h2 className="text-lg font-bold mb-4">New Tenant (placeholder)</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Modal UI coming soon.</p>
+              <div className="flex justify-end">
+                <button onClick={() => setShowModal(false)} className="btn-secondary">Close</button>
+              </div>
+            </div>
           </div>
         )}
       </div>

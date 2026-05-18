@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Download, TrendingUp, AlertTriangle } from 'lucide-react';
+import { Download, AlertTriangle } from 'lucide-react';
 import { reportsAPI } from '../api/client';
 
 interface ReportData {
