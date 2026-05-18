@@ -26,7 +26,7 @@ class RoomsList ( Resource ) :
         return [ {
             "id" : r.id,
             "room_number" : r.room_number,
-            "default_rent" :int( r.default_rent ),
+            "default_rent" :float( r.default_rent ),
             "capacity" : r.capacity,
             "status" : r.status,
             "current_occupants" : len ( r.occupancies ),
@@ -34,10 +34,15 @@ class RoomsList ( Resource ) :
         } for r in rooms ], 200
 
 
-            # Admin required.
+    # Admin required.
     # @token_required
     # @admin_required
     def post ( self ) :
+
+        admin = require_admin ()
+
+        if not admin :
+            return { "error" : "Unauthorized. Admin access required." }, 403
 
         data = request.get_json ()
 
@@ -84,7 +89,7 @@ class RoomDetails ( Resource ) :
         return {
             "id" : room.id,
             "room_number" : room.room_number,
-            "default_rent" : int (room.default_rent),
+            "default_rent" : float (room.default_rent),
             "capacity" : room.capacity,
             "status" : room.status,
             "current_occupants" : occupants,

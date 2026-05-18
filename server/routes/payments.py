@@ -53,6 +53,15 @@ class RecordPayment ( Resource ) :
         if not charge :
             return { "error" : "Charge not found." }, 404
         
+        if not isinstance ( data [ "amount" ], ( int, float ) ) :
+            return { "error" : "Invalid payment amount. Must be a number." }, 422
+
+        if data [ "amount" ] <= 0 :
+            return { "error" : "Invalid payment amount." }, 422
+        
+        if data [ "method" ] not in [ "mpesa", "card", "cash" ] :
+            return { "error" : "Invalid payment method." }, 422
+        
         payment = Payment (
             tenant_id = charge.occupancy.tenant_id,
             monthly_charge_id = charge.id,
