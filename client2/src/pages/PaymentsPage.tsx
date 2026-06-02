@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, CreditCard } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { paymentsAPI } from '../api/client';
 import { Payment } from '../types';
 
@@ -94,16 +95,16 @@ const PaymentsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Payments</h1>
-        <button
-          onClick={() => setShowRecordModal(true)}
-          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
-        >
-          <Plus size={20} />
-          Record Payment
-        </button>
-      </div>
+      <PageHeader
+        title="Payments"
+        description="Record and review payments"
+        icon={CreditCard}
+        action={{
+          label: 'Record Payment',
+          onClick: () => setShowRecordModal(true),
+          icon: Plus,
+        }}
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -143,7 +144,7 @@ const PaymentsPage: React.FC = () => {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filterStatus === status
                   ? 'bg-primary-600 text-white'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-50 hover:bg-slate-300 dark:hover:bg-slate-600'
+                  : 'bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-200 hover:bg-orange-100 dark:hover:bg-orange-800'
               }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -178,7 +179,7 @@ const PaymentsPage: React.FC = () => {
                   <td>KSh {parseFloat(payment.amount.toString()).toLocaleString()}</td>
                   <td className="capitalize">{payment.method}</td>
                   <td>
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(payment.status)}`}>
+                    <span className={`status-pill ${getStatusColor(payment.status)}`}>
                       {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                     </span>
                   </td>

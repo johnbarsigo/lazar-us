@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, DoorOpen } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { roomsAPI } from '../api/client';
 import { Room } from '../types';
 
@@ -74,16 +75,16 @@ const RoomsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Rooms</h1>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
-        >
-          <Plus size={20} />
-          New Room
-        </button>
-      </div>
+      <PageHeader
+        title="Rooms"
+        description="View and manage rooms"
+        icon={DoorOpen}
+        action={{
+          label: 'New Room',
+          onClick: () => setShowCreateModal(true),
+          icon: Plus,
+        }}
+      />
 
       {roomMessage && (
         <div className="card text-sm text-slate-700 dark:text-slate-200">
@@ -128,7 +129,7 @@ const RoomsPage: React.FC = () => {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filterStatus === status
                   ? 'bg-primary-600 text-white'
-                  : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-50 hover:bg-slate-300 dark:hover:bg-slate-600'
+                  : 'bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-200 hover:bg-orange-100 dark:hover:bg-orange-800'
               }`}
             >
               {status.charAt(0).toUpperCase() + status.slice(1)}

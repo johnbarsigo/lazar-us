@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store';
+import PageHeader from '../components/PageHeader';
 
 const DashboardPage: React.FC = () => {
   const { user } = useAuthStore();
@@ -28,39 +29,34 @@ const DashboardPage: React.FC = () => {
       title: 'Manage Tenants',
       description: 'View and add tenants',
       action: () => navigate('/tenants'),
-      color: 'from-blue-500 to-blue-600',
+      color: 'from-orange-400 to-orange-600',
     },
     {
       title: 'Generate Billings',
       description: 'Create monthly charges',
       action: () => navigate('/billings'),
-      color: 'from-green-500 to-green-600',
+      color: 'from-orange-500 to-orange-700',
     },
     {
       title: 'View Reports',
       description: 'Check system reports',
       action: () => navigate('/reports'),
-      color: 'from-purple-500 to-purple-600',
+      color: 'from-orange-300 to-orange-500',
     },
     {
       title: 'Manage Rooms',
       description: 'View room status',
       action: () => navigate('/rooms'),
-      color: 'from-orange-500 to-orange-600',
+      color: 'from-orange-400 to-orange-600',
     },
   ];
 
   return (
     <div className="space-y-8">
-      {/* Welcome Header */}
-      <div>
-        <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-          Welcome back, {user?.username}!
-        </h1>
-        <p className="text-slate-600 dark:text-slate-400">
-          Here's what's happening with your hostel today.
-        </p>
-      </div>
+      <PageHeader
+        title={`Welcome back, ${user?.username}!`}
+        description="Track occupancy, collections, and hostel performance from one dashboard."
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -86,7 +82,7 @@ const DashboardPage: React.FC = () => {
           title="Monthly Revenue"
           value={`KSh ${stats.monthlyRevenue.toLocaleString()}`}
           icon="💰"
-          color="purple"
+          color="orange"
         />
       </div>
 
@@ -149,13 +145,14 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, color }) => {
     green: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400',
     yellow: 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400',
     purple: 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
+    orange: 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-200',
   };
 
   return (
     <div className={`card ${colorClasses[color as keyof typeof colorClasses]}`}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{title}</p>
+          <p className="text-sm font-medium text-slate-600 dark:text-orange-200">{title}</p>
           <p className="text-3xl font-bold mt-2">{value}</p>
         </div>
         <div className="text-4xl">{icon}</div>
@@ -182,7 +179,7 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ type, message, time }) => {
       <div className="text-2xl">{icons[type]}</div>
       <div className="flex-1">
         <p className="text-slate-900 dark:text-white text-sm">{message}</p>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{time}</p>
+        <p className="text-xs text-slate-500 dark:text-orange-200 mt-1">{time}</p>
       </div>
     </div>
   );

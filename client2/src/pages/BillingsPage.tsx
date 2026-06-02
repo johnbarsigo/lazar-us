@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, AlertCircle } from 'lucide-react';
+import { Plus, Receipt, AlertCircle } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { billingsAPI } from '../api/client';
 import { MonthlyCharge } from '../types';
 
@@ -59,16 +60,16 @@ const BillingsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Billings</h1>
-        <button
-          onClick={handleGenerateBillings}
-          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
-        >
-          <Plus size={20} />
-          Generate Billings
-        </button>
-      </div>
+      <PageHeader
+        title="Billings"
+        description="Manage monthly charges"
+        icon={Receipt}
+        action={{
+          label: 'Generate Billings',
+          onClick: handleGenerateBillings,
+          icon: Plus,
+        }}
+      />
 
       {statusMessage && (
         <div className="card text-sm text-slate-700 dark:text-slate-200">
@@ -162,7 +163,7 @@ const BillingsPage: React.FC = () => {
       ) : filteredBillings.length === 0 ? (
         <div className="card text-center py-8">
           <AlertCircle className="mx-auto mb-2 text-yellow-600" size={32} />
-          <p className="text-slate-600 dark:text-slate-400">No billings for this period</p>
+          <p className="text-slate-600 dark:text-orange-200">No billings for this period</p>
         </div>
       ) : (
         <div className="card table-container">

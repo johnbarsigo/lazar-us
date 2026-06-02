@@ -55,12 +55,12 @@ const SignupPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-slate-900 dark:to-slate-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-orange-100 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="card">
+        <div className="card border border-orange-200/80 shadow-[0_24px_60px_rgba(255,140,0,0.14)]">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-primary-600 mb-2">OKS Hostel</h1>
-            <p className="text-slate-600 dark:text-slate-400">Create Account</p>
+            <h1 className="text-3xl font-bold text-orange-600 mb-2">OKS Hostel</h1>
+            <p className="text-slate-600 dark:text-orange-200">Create Account</p>
           </div>
 
           {error && (
@@ -133,7 +133,7 @@ const SignupPage: React.FC = () => {
             </button>
           </form>
 
-          <p className="text-center text-slate-600 dark:text-slate-400 text-sm mt-6">
+          <p className="text-center text-slate-600 dark:text-orange-200 text-sm mt-6">
             Already have an account?{' '}
             <Link to="/login" className="text-primary-600 hover:text-primary-700 font-medium">
               Login here

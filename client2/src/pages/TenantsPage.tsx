@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, Users } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { tenantsAPI, roomsAPI } from '../api/client';
 import { Tenant, Room } from '../types';
 
@@ -81,25 +82,28 @@ const TenantsPage: React.FC = () => {
     }
   };
 
-  const filteredTenants = tenants.filter(
-    (t) =>
-      t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.national_id.includes(searchTerm)
-  );
+  const normalized = (value?: string | null) => value?.toLowerCase() ?? '';
+
+  const filteredTenants = tenants.filter((t) => {
+    return (
+      normalized(t.name).includes(searchTerm.toLowerCase()) ||
+      normalized(t.email).includes(searchTerm.toLowerCase()) ||
+      normalized(t.national_id).includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Tenants</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
-        >
-          <Plus size={20} />
-          New Tenant
-        </button>
-      </div>
+      <PageHeader
+        title="Tenants"
+        description="Manage tenants and occupancies"
+        icon={Users}
+        action={{
+          label: 'New Tenant',
+          onClick: () => setShowModal(true),
+          icon: Plus,
+        }}
+      />
 
       <div className="card">
         {tenantMessage && (
