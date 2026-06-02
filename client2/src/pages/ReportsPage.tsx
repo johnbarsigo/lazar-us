@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Download, AlertTriangle } from 'lucide-react';
+import PageHeader from '../components/PageHeader';
 import { reportsAPI } from '../api/client';
 
 interface ReportData {
@@ -64,16 +65,16 @@ const ReportsPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Reports</h1>
-        <button
-          onClick={handleDownload}
-          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
-        >
-          <Download size={20} />
-          Download Report
-        </button>
-      </div>
+      <PageHeader
+        title="Reports"
+        description="Download and review hostel reports"
+        icon={AlertTriangle}
+        action={{
+          label: 'Download Report',
+          onClick: handleDownload,
+          icon: Download,
+        }}
+      />
 
       {/* Report Tabs */}
       <div className="flex gap-2">
@@ -84,7 +85,7 @@ const ReportsPage: React.FC = () => {
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               activeReport === report
                 ? 'bg-primary-600 text-white'
-                : 'bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-50 hover:bg-slate-300 dark:hover:bg-slate-600'
+                : 'bg-orange-50 text-orange-700 dark:bg-orange-900/20 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-800'
             }`}
           >
             {report === 'arrears' ? 'Arrears Report' : 'Income Report'}

@@ -18,12 +18,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [darkMode]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <Header onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
-      <main className="lg:ml-64 min-h-[calc(100vh-64px)]">
-        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+
+      <main className="lg:ml-64 min-h-[calc(100vh-64px)] bg-slate-50 dark:bg-slate-950">
+        <div className="mx-auto max-w-[1480px] p-4 sm:p-6 lg:p-8">
+          {children}
+        </div>
       </main>
     </div>
   );
