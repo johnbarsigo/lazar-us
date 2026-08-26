@@ -6,6 +6,7 @@ from flask_restful import Resource
 from auth.permissions import require_admin, require_manager
 from models import db, Payment, MonthlyCharge
 from datetime import datetime
+from decimal import Decimal
 
 
 class PaymentsList ( Resource ) :
