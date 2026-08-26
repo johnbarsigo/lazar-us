@@ -8,6 +8,7 @@ server/CODE_REVIEW.md
 server/MISSING_FEATURES.md
 client
 client2/node_modules/*
+client2/.next/*
 
 
 client2/.env
