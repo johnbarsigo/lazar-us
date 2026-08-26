@@ -63,12 +63,20 @@ class RecordPayment ( Resource ) :
         if data [ "method" ] not in [ "mpesa", "card", "cash" ] :
             return { "error" : "Invalid payment method." }, 422
         
+        payment_amount = Decimal ( str ( data [ "amount" ] ) )
+        total_paid = sum (
+            ( Decimal ( str ( existing_payment.amount or 0 ) )
+              for existing_payment in charge.payments ),
+            Decimal ( "0" )
+        ) + payment_amount
+        charge_total = Decimal ( str ( charge.total_amount or 0 ) )
+
         payment = Payment (
             tenant_id = charge.occupancy.tenant_id,
             monthly_charge_id = charge.id,
-            amount = data [ "amount" ],
+            amount = payment_amount,
             method = data [ "method" ],
-            # payment_date = datetime.strptime ( data [ "payment_date" ], "%Y-%m-%d" )
+            status = "completed" if total_paid >= charge_total else "pending",
             payment_date = datetime.utcnow() if not data.get ( "payment_date" ) else datetime.strptime ( data [ "payment_date" ], "%Y-%m-%d" )
         )
 
