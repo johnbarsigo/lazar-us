@@ -18,6 +18,7 @@ psycopg2-binary = "*"
 flask-jwt-extended = "*"
 python-dotenv = "*"
 dotenv = "*"
+colorama = "*"
 
 [dev-packages]
 
