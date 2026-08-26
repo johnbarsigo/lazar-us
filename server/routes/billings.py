@@ -171,6 +171,7 @@ class BillingDetails ( Resource ) :
             billing.water_bill = data [ "water_bill" ]
         # billing.rent_amount = data.get ( "rent_amount", billing.rent_amount )
         # billing.water_bill = data.get ( "water_bill", billing.water_bill )
+        billing.total_amount = billing.rent_amount + ( billing.water_bill or 0 )
         billing.updated_at = datetime.utcnow()
 
         db.session.commit ()
