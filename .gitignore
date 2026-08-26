@@ -3,9 +3,12 @@ server/migrations/alembic.ini
 server/migrations/script.py.mako
 server/migrations/README
 server/migrations/*
+server/.env
 server/CODE_REVIEW.md
 server/MISSING_FEATURES.md
 client
+client2/node_modules/*
+
 
 client2/.env
 client2/.env.local
