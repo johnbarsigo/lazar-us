@@ -109,6 +109,9 @@ class BillingsList ( Resource ) :
             "rent_amount" : int (b.rent_amount),
             "water_bill" : int (b.water_bill) if b.water_bill else 0,
             "total_amount" : int (b.total_amount) if b.total_amount else 0,
+            "paid_amount" : int (sum ( ( p.amount or 0 for p in b.payments ), 0 )),
+            "balance" : max ( 0, int ( b.total_amount or 0 ) - int ( sum ( ( p.amount or 0 for p in b.payments ), 0 ) ) ),
+            "status" : "completed" if sum ( ( p.amount or 0 for p in b.payments ), 0 ) >= ( b.total_amount or 0 ) else "pending",
             "charge_date" : str (b.charge_date.isoformat()),
             "created_at" : str (b.created_at.isoformat()),
             "updated_at" : str (b.updated_at.isoformat()) if b.updated_at else None
