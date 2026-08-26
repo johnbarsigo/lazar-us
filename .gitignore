@@ -11,6 +11,7 @@ client2/node_modules/*
 client2/.next/*
 
 
+
 client2/.env
 client2/.env.local
 
