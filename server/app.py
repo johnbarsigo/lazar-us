@@ -39,8 +39,10 @@ def create_app ( ) :
     CORS (
         app,
         supports_credentials = True,
-        origins = [ "http://localhost:3000" ],
-        allow_headers = [ "Content-Type", "Authorization" ]
+        origins = [ "http://localhost:3000",
+                    "http://192.168.1.102:3000" ],
+        allow_headers = [ "Content-Type", "Authorization" ],
+        methods = [ "GET", "POST", "PUT", "DELETE", "OPTIONS" ]
     )
     db.init_app ( app )
     # Initiate JWT extension with Flask app
@@ -93,7 +95,7 @@ def create_app ( ) :
 app = create_app ()
 
 if __name__ == "__main__" :
-    app.run ( debug = True, port = 5555 )
+    app.run ( host="0.0.0.0", debug = True, port = 5555 )
 
 
 # ===============TO-DO/THINKPAD===============
