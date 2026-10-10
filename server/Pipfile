@@ -19,6 +19,7 @@ flask-jwt-extended = "*"
 python-dotenv = "*"
 dotenv = "*"
 colorama = "*"
+gunicorn = "*"
 
 [dev-packages]
 
